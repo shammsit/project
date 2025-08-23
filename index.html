@@ -8,7 +8,8 @@
 </head>
 <body>
     <section>
-        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <div class="background-grid">
+            </div>
 
         <div class="signin">
             <div class="content">
@@ -32,6 +33,16 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            // This script creates the 200 squares for the background grid
+            const grid = document.querySelector('.background-grid');
+            for (let i = 0; i < 200; i++) {
+                const square = document.createElement('span');
+                square.style.setProperty('--i', Math.floor(Math.random() * 40)); // Randomize animation delay
+                grid.appendChild(square);
+            }
+        </script>
     </section>
 </body>
 </html>
