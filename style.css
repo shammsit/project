@@ -1,0 +1,146 @@
+/* Import a Google Font for a more 'tech' feel */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto Mono', monospace;
+}
+
+section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.signin {
+    position: relative;
+    width: 400px;
+    background: #222;
+    z-index: 1000;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.signin .content {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.signin .content h2 {
+    font-size: 2em;
+    color: #0f0;
+    text-transform: uppercase;
+}
+
+.signin .form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.signin .form .inputBox {
+    position: relative;
+    width: 100%;
+}
+
+.signin .form .inputBox input {
+    position: relative;
+    width: 100%;
+    background: #333;
+    border: none;
+    outline: none;
+    padding: 25px 10px 7.5px;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 1em;
+}
+
+.signin .form .inputBox i {
+    position: absolute;
+    left: 0;
+    padding: 15px 10px;
+    font-style: normal;
+    color: #aaa;
+    transition: 0.5s;
+    pointer-events: none;
+}
+
+/* Floating label effect */
+.signin .form .inputBox input:focus ~ i,
+.signin .form .inputBox input:valid ~ i {
+    transform: translateY(-7.5px);
+    font-size: 0.8em;
+    color: #fff;
+}
+
+.signin .form .links {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.signin .form .links a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.signin .form .links a:nth-child(2) {
+    color: #0f0;
+    font-weight: 600;
+}
+
+.signin .form .inputBox input[type="submit"] {
+    padding: 10px;
+    background: #0f0;
+    color: #111;
+    font-weight: 600;
+    font-size: 1.25em;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+}
+
+/* --- Animated Background --- */
+section span {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background: #222;
+    margin: 0 4px;
+    animation: animate 8s linear infinite;
+    animation-delay: calc(0.1s * var(--i));
+    z-index: 1;
+}
+
+@keyframes animate {
+    0% {
+        transform: translateY(100vh) scale(0);
+    }
+    100% {
+        transform: translateY(-10vh) scale(1);
+    }
+}
+
+/* Create staggered animation delays for the spans */
+section span:nth-child(3n + 2) { background: #1c1c1c; }
+section span:nth-child(3n + 3) { background: #2f2f2f; }
+
+section span:hover {
+    background: #0f0;
+    transition: 0s;
+}
