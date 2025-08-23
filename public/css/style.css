@@ -1,88 +1,85 @@
-/* Reset + Global */
+/* Import a hacker-style font */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap');
+
+/* Basic setup for the hacker theme */
 body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100vw;
-  font-family: Arial, sans-serif;
-  color: white; /* Text visible on dark background */
-  position: relative;
-  overflow-x: hidden;
+    background-color: #000;
+    color: #00ff41; /* Bright green text */
+    font-family: 'Fira Code', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Matrix Background */
-#matrix {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1; /* Behind everything */
-  background: black;
+/* Canvas for the matrix background effect */
+#matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }
 
-/* Container */
-.container {
-    width: 90%;
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-}
-
-/* Header */
-header, main, footer {
-  background: rgba(0, 0, 0, 0.6); /* transparent black for readability */
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px auto;
-  width: 80%;
+/* Header styling */
+header {
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 1px solid #00ff41;
+    padding: 1rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 header h1 {
-    color: #00ff00;
-    text-shadow: 0 0 8px #00ff00;
+    font-size: 1.5rem;
+    margin: 0;
 }
 
-
-/* Paragraphs */
-footer p, footer a {
-  color: #0f0; /* green links like Matrix */
-  text-decoration: none;
+/* Main content area */
+main {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
 }
 
-footer a:hover {
-  text-decoration: underline;
+.welcome-message h2 {
+    font-size: 3rem;
+    font-weight: 700;
 }
 
-.copy {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    color: #00ff00;
-    opacity: 0.8;
-}
-/* Links */
-a {
-    color: #00ff00;
-    text-decoration: none;
+/* Footer styling */
+footer {
+    background: rgba(0, 0, 0, 0.7);
+    border-top: 1px solid #00ff41;
+    padding: 1.5rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-a:hover {
-    text-shadow: 0 0 5px #00ff00;
-}
-
-/* Social Links */
 .social-links {
-    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 0.5rem;
 }
 
 .social-links a {
-    color: #00ff00;
-    font-size: 1.6rem;
-    margin: 0 10px;
-    transition: 0.3s;
+    color: #00ff41;
+    font-size: 1.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
 
 .social-links a:hover {
-    text-shadow: 0 0 15px #00ff00;
+    color: #fff;
+    text-shadow: 0 0 8px #fff, 0 0 15px #fff;
     transform: scale(1.2);
 }
