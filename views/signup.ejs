@@ -1,0 +1,66 @@
+<%- include('partials/header', { title: 'Signup' }) %>
+
+<main class="signup-main">
+    <div class="signup-container">
+        <h3>CREATE ACCOUNT</h3>
+        <form id="signup-form">
+            <!-- Form Fields -->
+            <div class="input-group">
+                <input type="text" name="name" placeholder="Name" required>
+            </div>
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username (GitHub User ID)" required>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <div class="mobile-group">
+                <select name="countryCode" id="country-code">
+                    <option value="+91" selected>+91 (IN)</option>
+                    <option value="+1">+1 (US)</option>
+                    <option value="+44">+44 (UK)</option>
+                    <!-- Add other country codes as needed -->
+                </select>
+                <input type="tel" name="mobile" placeholder="Mobile Number" required>
+            </div>
+            <div class="input-group">
+                <input type="email" name="email" placeholder="Email ID" required>
+            </div>
+            <div class="input-group">
+                <select name="projectName" required>
+                    <option value="" disabled selected>Select Project Name</option>
+                    <option value="ResQva">ResQva</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <select name="role" required>
+                    <option value="" disabled selected>Select Role</option>
+                    <option value="Designer">Designer</option>
+                    <option value="Database Controller">Database Controller</option>
+                    <option value="Front End Developer">Front End Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="Researcher">Researcher</option>
+                    <option value="Presenter">Presenter</option>
+                    <option value="Overall Presenter">Overall Presenter</option>
+                    <option value="Manager">Manager</option>
+                </select>
+            </div>
+
+            <!-- CAPTCHA Section -->
+            <div class="captcha-container">
+                <div id="captcha-box"></div>
+                <button type="button" id="refresh-captcha" class="refresh-btn"><i class="fas fa-sync-alt"></i></button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="captcha-input" placeholder="Enter Captcha" required>
+            </div>
+
+            <button type="submit" class="btn signup-btn">Submit Application</button>
+            <p id="form-message"></p>
+            <p class="login-link">Already have an account? <a href="/">Sign In</a></p>
+        </form>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
