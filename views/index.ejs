@@ -1,7 +1,27 @@
 <%- include('partials/header') %>
 
-<div class="welcome-message">
-    <h2>Welcome!</h2>
+<div class="main-content-wrapper">
+    <div class="welcome-message">
+        <h2>Welcome!</h2>
+    </div>
+
+    <!-- Login Form Container -->
+    <div class="login-container">
+        <h3>SIGN IN</h3>
+        <form action="#">
+            <div class="input-group">
+                <input type="text" placeholder="Username" required>
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="Password" required>
+            </div>
+            <div class="options">
+                <a href="#">Forgot Password</a>
+                <a href="#">Signup</a>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+    </div>
 </div>
 
 <%- include('partials/footer') %>

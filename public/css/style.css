@@ -13,6 +13,16 @@ body {
     min-height: 100vh;
 }
 
+/* Canvas for the matrix background effect */
+#matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Place it behind all other content */
+}
+
 /* Header styling */
 header {
     background: rgba(0, 0, 0, 0.7);
@@ -38,10 +48,89 @@ main {
     padding: 2rem;
 }
 
+.main-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
 .welcome-message h2 {
     font-size: 3rem;
     font-weight: 700;
+    margin: 0;
 }
+
+/* --- NEW LOGIN FORM STYLES --- */
+.login-container {
+    background-color: rgba(20, 20, 20, 0.8);
+    border: 1px solid #00ff41;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+}
+
+.login-container h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Fira Code', monospace;
+    box-sizing: border-box;
+}
+
+.input-group input::placeholder {
+    color: #888;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.options a {
+    color: #00ff41;
+    text-decoration: none;
+}
+
+.options a:hover {
+    text-decoration: underline;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #00ff41;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+    background-color: #fff;
+}
+
 
 /* Footer styling */
 footer {
