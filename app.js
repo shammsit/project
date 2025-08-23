@@ -29,7 +29,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // --- Google Sheets API Logic ---
 async function getAuthClient() {
     const auth = new google.auth.GoogleAuth({
-        // UPDATED: Using path.join for a more reliable file path
         keyFile: path.join(__dirname, 'credentials.json'),
         scopes: 'https://www.googleapis.com/auth/spreadsheets',
     });
@@ -58,8 +57,28 @@ app.get('/signup', (req, res) => {
     res.render('signup');
 });
 
-app.get('/data', requireAdminLogin, (req, res) => {
-    res.render('data/table');
+// --- UPDATED /data Route ---
+app.get('/data', requireAdminLogin, async (req, res) => {
+    try {
+        const authClient = await getAuthClient();
+        const googleSheets = await getSheetsInstance(authClient);
+        const spreadsheetId = '1u3ltAu6JEv0pW3VPxHHTs8wG5m5Wo3kjb6kK6PbY6bg';
+
+        // Fetch all the data from the sheet
+        const getRows = await googleSheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Sheet1!A2:J', // Get data from the second row onwards
+        });
+
+        const sheetData = getRows.data.values || [];
+        
+        // Render the table page and pass the sheet data to it
+        res.render('data/table', { sheetData });
+
+    } catch (error) {
+        console.error('Error reading from Google Sheets:', error);
+        res.status(500).send('Error fetching data from the spreadsheet.');
+    }
 });
 
 app.post('/login', (req, res) => {
@@ -72,11 +91,9 @@ app.post('/login', (req, res) => {
     }
 });
 
-// --- UPDATED /register Route ---
 app.post('/register', async (req, res) => {
     const { name, username, password, countryCode, mobile, email, projectName, role } = req.body;
 
-    // Basic server-side validation
     if (!name || !username || !password || !mobile || !email || !projectName || !role) {
         return res.status(400).json({ success: false, message: 'Missing required fields.' });
     }
@@ -84,31 +101,15 @@ app.post('/register', async (req, res) => {
     try {
         const authClient = await getAuthClient();
         const googleSheets = await getSheetsInstance(authClient);
-        const spreadsheetId = '1u3ltAu6JEv0pW3VPxHHTs8wG5m5Wo3kjb6kK6PbY6bg'; // Your sheet ID
+        const spreadsheetId = '1u3ltAu6JEv0pW3VPxHHTs8wG5m5Wo3kjb6kK6PbY6bg';
 
-        // Format the data for the new row
-        const newRow = [
-            name,
-            username,
-            password,
-            `${countryCode}${mobile}`, // Combine country code and mobile
-            email,
-            projectName,
-            role,
-            // The last 3 columns are for buttons, so we leave them empty
-            '', // Approve
-            '', // Reject/Delete
-            ''  // Contact
-        ];
+        const newRow = [ name, username, password, `${countryCode}${mobile}`, email, projectName, role, '', '', '' ];
 
-        // Append the new row to the spreadsheet
         await googleSheets.spreadsheets.values.append({
             spreadsheetId,
-            range: 'Sheet1!A:J', // The range of columns to append to
+            range: 'Sheet1!A:J',
             valueInputOption: 'USER_ENTERED',
-            resource: {
-                values: [newRow],
-            },
+            resource: { values: [newRow] },
         });
 
         res.json({
@@ -121,7 +122,6 @@ app.post('/register', async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error. Could not save data.' });
     }
 });
-
 
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
