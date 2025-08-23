@@ -1,58 +1,106 @@
-// Get the canvas element and its 2D rendering context
-const canvas = document.getElementById('matrix-bg');
-const ctx = canvas.getContext('2d');
+// Binary Rain Wallpaper Script
 
-// Set canvas dimensions to fill the entire window
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const canvas = document.getElementById("matrix-bg");
+const ctx = canvas.getContext("2d");
 
-// The characters to be used in the rain effect (binary)
-const characters = '01';
-const charactersArray = characters.split('');
+// --- Configuration ---
+const config = {
+  charSet: ["0", "1"],
+  baseFontSize: 16,
+  minFontSize: 12,
+  maxFontSize: 22,
+  columnSpacing: 1.0,
+  speedMin: 60,   // pixels/sec
+  speedMax: 180,  // pixels/sec
+  trailFade: 0.08,
+  glow: true,
+  color: "#00ff41",
+  tailColor: "rgba(0,0,0,0.08)",
+  fpsCap: 60,
+  randomBlink: 0.02
+};
 
-const fontSize = 16;
-// Calculate the number of columns based on the canvas width and font size
-const columns = Math.floor(canvas.width / fontSize);
+// --- Setup ---
+let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+let width = 0, height = 0;
+let fontSize = config.baseFontSize;
+let columnWidth = 0;
+let columns = [];
+let lastTime = 0;
+let frameInterval = 1000 / config.fpsCap;
 
-// Create an array to track the y-position of each column's character drop
-const drops = [];
-for (let x = 0; x < columns; x++) {
-    drops[x] = 1;
+function resizeCanvas() {
+  const cssW = window.innerWidth;
+  const cssH = window.innerHeight;
+
+  dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  width = Math.floor(cssW * dpr);
+  height = Math.floor(cssH * dpr);
+
+  canvas.width = width;
+  canvas.height = height;
+
+  const scaleHint = Math.sqrt((cssW * cssH) / (1280 * 720));
+  fontSize = Math.max(config.minFontSize, Math.min(config.maxFontSize, config.baseFontSize * scaleHint)) * dpr;
+  columnWidth = Math.floor(fontSize * config.columnSpacing);
+
+  ctx.textBaseline = "top";
+  ctx.font = `${fontSize}px Fira Code, monospace`;
+
+  const colCount = Math.ceil(width / columnWidth);
+  columns = new Array(colCount).fill().map((_, i) => ({
+    x: i * columnWidth,
+    y: Math.random() * -height,
+    speed: Math.random() * (config.speedMax - config.speedMin) + config.speedMin,
+    glyph: config.charSet[Math.floor(Math.random() * config.charSet.length)]
+  }));
+  ctx.clearRect(0, 0, width, height);
 }
 
-// The main drawing function that creates the animation
-function draw() {
-    // Fill the canvas with a semi-transparent black to create a fading trail effect
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+function draw(now) {
+  if (!lastTime) lastTime = now;
+  const elapsed = now - lastTime;
 
-    // Set the color and font for the dropping characters
-    ctx.fillStyle = '#008000'; // Dark Green
-    ctx.font = `${fontSize}px Fira Code`;
+  if (elapsed < frameInterval) {
+    requestAnimationFrame(draw);
+    return;
+  }
+  lastTime = now;
 
-    // Loop through each column
-    for (let i = 0; i < drops.length; i++) {
-        // Get a random character from the array
-        const text = charactersArray[Math.floor(Math.random() * charactersArray.length)];
-        
-        // Draw the character at its current position
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+  ctx.fillStyle = config.tailColor;
+  ctx.fillRect(0, 0, width, height);
 
-        // Reset the drop to the top if it goes off the screen, with a random chance
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
-        }
+  ctx.save();
+  if (config.glow) {
+    ctx.shadowBlur = fontSize * 0.6;
+    ctx.shadowColor = config.color;
+  }
+  ctx.fillStyle = config.color;
 
-        // Move the drop down for the next frame
-        drops[i]++;
+  const dyFactor = elapsed / 1000;
+  for (let col of columns) {
+    if (Math.random() < config.randomBlink) {
+      col.glyph = config.charSet[Math.floor(Math.random() * config.charSet.length)];
     }
+
+    ctx.fillText(col.glyph, col.x, col.y);
+
+    col.y += col.speed * dyFactor;
+    if (col.y > height) {
+      col.y = Math.random() * -100;
+      col.speed = Math.random() * (config.speedMax - config.speedMin) + config.speedMin;
+      col.glyph = config.charSet[Math.floor(Math.random() * config.charSet.length)];
+    }
+  }
+  ctx.restore();
+
+  requestAnimationFrame(draw);
 }
 
-// Run the draw function every 33 milliseconds to create the animation
-setInterval(draw, 33);
-
-// Adjust canvas size if the window is resized
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+// --- Init ---
+resizeCanvas();
+window.addEventListener("resize", () => {
+  clearTimeout(window._resizeTimer);
+  window._resizeTimer = setTimeout(resizeCanvas, 100);
 });
+requestAnimationFrame(draw);
