@@ -1,169 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto Mono', monospace;
+/* Custom styles for the page */
+body {
+    font-family: 'VT323', monospace; /* Applying a retro, terminal-like font */
+    overflow: hidden; /* Prevents scrollbars from appearing due to the background */
 }
 
-/* FIX 1: Prevents all scrolling on the page */
-html, body {
-    height: 100%;
-    overflow: hidden;
-}
-
-section {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background: #111;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* FIX 2: New background grid styling */
-.background-grid {
-    position: absolute;
+/* Styling for the animated background canvas */
+#matrix-background {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: -1; /* Places the background behind all other content */
+    background-color: #000; /* A black fallback color */
+}
+
+/* Styling for the captcha container */
+.captcha-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: flex-start;
-    gap: 8px; /* Space between squares */
-    padding: 8px;
-    opacity: 0.3;
-}
-
-.background-grid span {
-    width: 40px;
-    height: 40px;
-    background: #151515;
-    animation: animate 10s linear infinite;
-    animation-delay: calc(0.2s * var(--i)); /* Use randomized delay from JS */
-}
-
-/* New animation for flashing effect */
-@keyframes animate {
-    0%, 18%, 20.1%, 100% {
-        background: #151515;
-        box-shadow: none;
-    }
-    20% {
-        background: #0f0;
-        box-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
-    }
-}
-
-.signin {
-    position: relative; /* z-index needs a position other than static */
-    width: 90%; /* FIX 3: Makes the form responsive */
-    max-width: 400px; /* FIX 3: Sets a max width for larger screens */
-    background: rgba(34, 34, 34, 0.9); /* Slightly transparent */
-    backdrop-filter: blur(5px); /* Blurs the background behind the form */
-    z-index: 1000;
-    padding: 40px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-}
-
-.signin .content {
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
     align-items: center;
-    flex-direction: column;
-    gap: 40px;
-}
-
-.signin .content h2 {
-    font-size: 2em;
-    color: #0f0;
-    text-transform: uppercase;
-}
-
-.signin .form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.signin .form .inputBox {
-    position: relative;
-    width: 100%;
-}
-
-.signin .form .inputBox input {
-    position: relative;
-    width: 100%;
-    background: #333;
-    border: none;
-    outline: none;
-    padding: 25px 10px 7.5px;
-    border-radius: 4px;
-    color: #fff;
-    font-weight: 500;
-    font-size: 1em;
-}
-
-.signin .form .inputBox i {
-    position: absolute;
-    left: 0;
-    padding: 15px 10px;
-    font-style: normal;
-    color: #aaa;
-    transition: 0.5s;
-    pointer-events: none;
-}
-
-.signin .form .inputBox input:focus ~ i,
-.signin .form .inputBox input:valid ~ i {
-    transform: translateY(-7.5px);
-    font-size: 0.8em;
-    color: #fff;
-}
-
-.signin .form .links {
-    position: relative;
-    width: 100%;
-    display: flex;
     justify-content: space-between;
+    background-color: #1F2937; /* bg-gray-800 */
+    border: 1px solid #374151; /* border-gray-700 */
+    border-radius: 0.375rem; /* rounded-md */
+    padding: 0.5rem 1rem;
+    margin-bottom: 1.5rem; /* mb-6 */
 }
 
-.signin .form .links a {
-    color: #fff;
-    text-decoration: none;
+/* Styling for the captcha text display */
+#captcha-text {
+    font-size: 1.5rem; /* text-2xl */
+    letter-spacing: 0.2em;
+    text-decoration: line-through;
+    color: #9CA3AF; /* text-gray-400 */
+    user-select: none; /* Prevents text selection */
 }
 
-.signin .form .links a:hover {
-    color: #0f0;
-}
-
-.signin .form .links a:nth-child(2) {
-    color: #0f0;
-    font-weight: 600;
-}
-
-.signin .form .inputBox input[type="submit"] {
-    padding: 10px;
-    background: #0f0;
-    color: #111;
-    font-weight: 600;
-    font-size: 1.25em;
-    letter-spacing: 0.05em;
+/* Styling for the captcha refresh button */
+#captcha-refresh {
+    background: none;
+    border: none;
+    color: #4ADE80; /* text-green-400 */
     cursor: pointer;
-    transition: 0.2s;
+    font-size: 1.5rem;
 }
 
-.signin .form .inputBox input[type="submit"]:hover {
-    background: #fff;
-    color: #0f0;
-    box-shadow: 0 0 10px #0f0;
+#captcha-refresh:hover {
+    color: #ffffff;
 }
