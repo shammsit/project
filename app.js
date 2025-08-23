@@ -1,7 +1,7 @@
 // Import required modules
-const express = 'express';
-const path = 'path';
-const session = 'express-session'; // <-- Add this
+const express = require('express');
+const path = require('path');
+const session = require('express-session');
 
 // Initialize the Express app
 const app = express();
