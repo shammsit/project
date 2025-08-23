@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<section class="card">
+<h2>Sign Up</h2>
+<form method="POST" action="/signup" autocomplete="off">
+<label>Name<input name="name" required /></label>
+<label>Mobile Number<input name="mobile" required pattern="[0-9+#]{6,}" /></label>
+<label>GitHub ID<input name="github" required /></label>
+
+
+<div class="captcha">
+<span id="cap-signup" class="cap-box">-----</span>
+<button type="button" id="refresh-signup" class="link-btn">Refresh</button>
+</div>
+<input type="text" name="captchaInput" placeholder="Enter Captcha" required />
+
+
+<button type="submit" class="primary">Submit</button>
+</form>
+<p class="hint">After submit, data is stored server-side and visible to admin.</p>
+</section>
+
+
+<!-- Login -->
+<section class="card">
+<h2>Login</h2>
+<form method="POST" action="/login" autocomplete="off">
+<label>GitHub ID<input name="github" required /></label>
+<label>Password (Mobile Number)<input type="password" name="password" required /></label>
+
+
+<div class="captcha">
+<span id="cap-login" class="cap-box">-----</span>
+<button type="button" id="refresh-login" class="link-btn">Refresh</button>
+</div>
+<input type="text" name="captchaInput" placeholder="Enter Captcha" required />
+
+
+<button type="submit" class="secondary">Login</button>
+</form>
+<p class="hint">Admin: <code>shammsit / 8391831602#sg</code></p>
+</section>
+</div>
+</div>
+
+
+<script src="/public/script.js"></script>
+<script>
+// Fetch server-side captcha codes bound to session
+function loadCaptcha(form){
+fetch(`/api/captcha?form=${form}`)
+.then(r=>r.json())
+.then(({code})=>{
+const el = form==='signup' ? document.getElementById('cap-signup') : document.getElementById('cap-login');
+el.textContent = code;
+});
+}
+document.getElementById('refresh-signup').addEventListener('click', ()=>loadCaptcha('signup'));
+document.getElementById('refresh-login').addEventListener('click', ()=>loadCaptcha('login'));
+loadCaptcha('signup');
+loadCaptcha('login');
+</script>
+</body>
+</html>
