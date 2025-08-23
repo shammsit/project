@@ -15,12 +15,7 @@
                 <input type="password" name="password" placeholder="Password" required>
             </div>
             <div class="mobile-group">
-                <select name="countryCode" id="country-code">
-                    <option value="+91" selected>+91 (IN)</option>
-                    <option value="+1">+1 (US)</option>
-                    <option value="+44">+44 (UK)</option>
-                    <!-- Add other country codes as needed -->
-                </select>
+                <input type="text" name="countryCode" id="country-code" value="+91">
                 <input type="tel" name="mobile" placeholder="Mobile Number" required>
             </div>
             <div class="input-group">
@@ -44,10 +39,11 @@
                     <option value="Presenter">Presenter</option>
                     <option value="Overall Presenter">Overall Presenter</option>
                     <option value="Manager">Manager</option>
+                    <option value="Other">Other</option>
                 </select>
             </div>
 
-            <!-- CAPTCHA Section (Corrected) -->
+            <!-- CAPTCHA Section -->
             <div class="captcha-container">
                 <div id="captcha-box"></div>
                 <button type="button" id="refresh-captcha" class="refresh-btn"><i class="fas fa-sync-alt"></i></button>
@@ -58,9 +54,14 @@
 
             <button type="submit" class="signup-btn">Submit Application</button>
             <p id="form-message"></p>
-            <p class="login-link">Already have an account? <a href="/">Sign In</a></p>
+            <div class="login-link">
+                <span>Already have an account?</span>
+                <a href="/" class="btn secondary-btn">Sign In</a>
+            </div>
         </form>
     </div>
 </main>
 
+<!-- This script is required for the CAPTCHA to work -->
+<script src="/js/signup.js"></script>
 <%- include('partials/footer') %>

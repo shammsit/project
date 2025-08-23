@@ -116,28 +116,39 @@ main {
 }
 
 .mobile-group #country-code {
-    width: 35%;
+    width: 30%;
     padding: 0.75rem;
     background-color: #333;
     border: 1px solid #555;
     border-radius: 4px;
     color: #fff;
     font-family: 'Fira Code', monospace;
+    text-align: center;
 }
 
-.mobile-group input {
-    width: 65%;
+.mobile-group input[name="mobile"] {
+    width: 70%;
 }
 
 .login-link {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
     margin-top: 1.5rem;
     font-size: 0.9rem;
 }
 
-.login-link a {
+.secondary-btn {
+    background-color: transparent;
+    border: 1px solid #00ff41;
     color: #00ff41;
-    text-decoration: none;
+    padding: 8px 16px;
+}
+
+.secondary-btn:hover {
+    background-color: #00ff41;
+    color: #000;
 }
 /* --- END SIGNUP STYLES --- */
 
