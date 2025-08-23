@@ -6,7 +6,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// The characters to be used in the rain effect (now binary)
+// The characters to be used in the rain effect (binary)
 const characters = '01';
 const charactersArray = characters.split('');
 
@@ -27,7 +27,7 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Set the color and font for the dropping characters
-    ctx.fillStyle = '#00BFFF'; // Deep Sky Blue
+    ctx.fillStyle = '#008000'; // Dark Green
     ctx.font = `${fontSize}px Fira Code`;
 
     // Loop through each column
