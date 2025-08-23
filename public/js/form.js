@@ -4,12 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshButton = document.getElementById('refresh-captcha');
     const loginForm = document.getElementById('login-form');
     const messageElement = document.getElementById('form-message');
-    
-    const usernameInput = document.querySelector('input[name="username"]');
-    const passwordInput = document.querySelector('input[name="password"]');
 
     let captchaText = '';
 
+    // Function to generate a random alphanumeric string for the CAPTCHA
     const generateCaptcha = () => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
@@ -18,54 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         captchaText = result;
         captchaBox.textContent = captchaText;
-        messageElement.textContent = '';
+        messageElement.textContent = ''; // Clear any previous messages
     };
 
+    // Event listener for the refresh button
     refreshButton.addEventListener('click', generateCaptcha);
 
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // Event listener for the form submission
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // Prevent the form from submitting
 
-        if (captchaInput.value !== captchaText) {
+        // Validate the CAPTCHA
+        if (captchaInput.value === captchaText) {
+            messageElement.textContent = 'CAPTCHA Verified!';
+            messageElement.style.color = '#00ff41';
+            // In a real app, you would now send the form data to the server
+        } else {
             messageElement.textContent = 'Incorrect CAPTCHA. Please try again.';
-            messageElement.style.color = '#ff0000';
-            captchaInput.value = '';
-            generateCaptcha();
-            return;
-        }
-        
-        messageElement.textContent = 'Verifying credentials...';
-        messageElement.style.color = '#00ff41';
-
-        try {
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: usernameInput.value,
-                    password: passwordInput.value,
-                }),
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                messageElement.textContent = result.message;
-                messageElement.style.color = '#00ff41';
-                // Redirect to dashboard on success
-                window.location.href = '/dashboard';
-            } else {
-                messageElement.textContent = result.message;
-                messageElement.style.color = '#ff0000';
-                generateCaptcha();
-            }
-
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            messageElement.textContent = 'Could not connect to the server.';
-            messageElement.style.color = '#ff0000';
+            messageElement.style.color = '#ff0000'; // Red for error
+            captchaInput.value = ''; // Clear the input
+            generateCaptcha(); // Generate a new CAPTCHA
         }
     });
 
+    // Generate the first CAPTCHA when the page loads
     generateCaptcha();
 });
