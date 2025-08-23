@@ -193,8 +193,10 @@ main {
 
 #form-message {
     margin-top: 1rem;
-    height: 1.2em;
+    min-height: 1.2em; /* Changed from height to min-height */
+    line-height: 1.5; /* Added for better readability */
     font-size: 0.9rem;
+    word-wrap: break-word; /* Ensures long messages wrap */
 }
 
 .options {
