@@ -1,20 +1,14 @@
-/* Import a hacker-style font */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap');
-
-/* Basic setup for the hacker theme */
+/* Reset + Global */
 body {
-    background-color: #000;
-    color: #00ff41; /* Bright green text */
-    font-family: 'Fira Code', monospace;
     margin: 0;
     padding: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    background: black;   /* Always black */
+    color: #00ff00;      /* Neon green */
+    font-family: monospace, Arial, sans-serif;
+    overflow-x: hidden;
 }
 
-/* Canvas for the matrix background effect */
+/* Matrix Background */
 #matrix-bg {
     position: fixed;
     top: 0;
@@ -22,64 +16,69 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
+    background: black;
 }
 
-/* Header styling */
+/* Container */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Header */
 header {
-    background: rgba(0, 0, 0, 0.7);
-    border-bottom: 1px solid #00ff41;
-    padding: 1rem;
     text-align: center;
-    width: 100%;
-    box-sizing: border-box;
+    padding: 20px 0;
 }
 
 header h1 {
-    font-size: 1.5rem;
-    margin: 0;
+    color: #00ff00;
+    text-shadow: 0 0 8px #00ff00;
 }
 
-/* Main content area */
-main {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 2rem;
-}
-
-.welcome-message h2 {
-    font-size: 3rem;
-    font-weight: 700;
-}
-
-/* Footer styling */
+/* Footer */
 footer {
-    background: rgba(0, 0, 0, 0.7);
-    border-top: 1px solid #00ff41;
-    padding: 1.5rem;
     text-align: center;
-    width: 100%;
-    box-sizing: border-box;
+    padding: 20px 0;
+    border-top: 1px solid #00ff00;
+    margin-top: 40px;
 }
 
+/* Paragraphs */
+footer p {
+    color: #00ff00;
+}
+.copy {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #00ff00;
+    opacity: 0.8;
+}
+/* Links */
+a {
+    color: #00ff00;
+    text-decoration: none;
+}
+
+a:hover {
+    text-shadow: 0 0 5px #00ff00;
+}
+
+/* Social Links */
 .social-links {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 0.5rem;
+    margin-top: 10px;
 }
 
 .social-links a {
-    color: #00ff41;
-    font-size: 1.75rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
+    color: #00ff00;
+    font-size: 1.6rem;
+    margin: 0 10px;
+    transition: 0.3s;
 }
 
 .social-links a:hover {
-    color: #fff;
-    text-shadow: 0 0 8px #fff, 0 0 15px #fff;
+    text-shadow: 0 0 15px #00ff00;
     transform: scale(1.2);
 }
