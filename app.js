@@ -29,7 +29,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // --- Google Sheets API Logic ---
 async function getAuthClient() {
     const auth = new google.auth.GoogleAuth({
-        keyFile: 'credentials.json',
+        // UPDATED: Using path.join for a more reliable file path
+        keyFile: path.join(__dirname, 'credentials.json'),
         scopes: 'https://www.googleapis.com/auth/spreadsheets',
     });
     return await auth.getClient();
