@@ -1,8 +1,105 @@
-/* We are using Tailwind CSS via a CDN for this example, so this file can be empty. */
-/* If you want to add custom CSS that can't be done with Tailwind, you can add it here. */
+/* Import a hacker-style font */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap');
 
-/* For example:
+/* Basic setup for the hacker theme */
 body {
-    font-family: 'Inter', sans-serif;
+    background-color: #000;
+    color: #00ff41; /* Bright green text */
+    font-family: 'Fira Code', monospace;
+    text-shadow: 0 0 5px #00ff41, 0 0 10px #00ff41;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Hide scrollbars as the content fits on one screen */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
-*/
+
+/* Canvas for the matrix background effect */
+#matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Place it behind all other content */
+}
+
+/* Header styling */
+header {
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 1px solid #00ff41;
+    padding: 1rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    animation: flicker 1.5s infinite alternate;
+}
+
+/* Main content area */
+main {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.welcome-message h2 {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+/* Footer styling */
+footer {
+    background: rgba(0, 0, 0, 0.7);
+    border-top: 1px solid #00ff41;
+    padding: 1.5rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.social-links a {
+    color: #00ff41;
+    font-size: 1.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff;
+    transform: scale(1.2);
+}
+
+/* Flicker animation for text */
+@keyframes flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow:
+    0 0 4px #00ff41,
+    0 0 11px #00ff41,
+    0 0 19px #00ff41,
+    0 0 40px #0fa,
+    0 0 80px #0fa,
+    0 0 90px #0fa,
+    0 0 100px #0fa,
+    0 0 150px #0fa;
+  }
+  20%, 24%, 55% {        
+    text-shadow: none;
+  }
+}
