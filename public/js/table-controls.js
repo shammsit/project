@@ -1,74 +1,90 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const addRowBtn = document.getElementById('add-row-btn');
     const gridBody = document.getElementById('data-grid-body');
 
-    // Function to create a new, empty grid row
-    const createNewRow = () => {
-        const newRow = document.createElement('div');
-        newRow.classList.add('data-grid-row');
+    if (!gridBody) return;
 
-        // Define the structure of the new row. Cells are not editable by default.
-        newRow.innerHTML = `
-            <div data-label="Name" contenteditable="false">New Name</div>
-            <div data-label="Username" contenteditable="false">new_user</div>
-            <div data-label="Password" contenteditable="false">********</div>
-            <div data-label="Mobile Number" contenteditable="false"></div>
-            <div data-label="Email ID" contenteditable="false"></div>
-            <div data-label="Project Name" contenteditable="false"></div>
-            <div data-label="Role" contenteditable="false"></div>
-            <div class="actions-cell">
-                <button class="btn edit-btn">Edit</button>
-                <button class="btn approve-btn">Approve</button>
-                <button class="btn reject-btn">Delete</button>
-                <button class="btn contact-btn">Contact</button>
-            </div>
-        `;
-        return newRow;
-    };
+    gridBody.addEventListener('click', async (e) => {
+        const target = e.target;
+        const row = target.closest('.data-grid-row');
+        if (!row) return;
 
-    // --- Event Delegation for Action Buttons ---
-    // We listen for clicks on the body of the grid, then check what was clicked.
-    if (gridBody) {
-        gridBody.addEventListener('click', (e) => {
-            const target = e.target;
-            const row = target.closest('.data-grid-row');
+        const rowIndex = row.dataset.rowIndex;
 
-            if (!row) return;
+        // --- Handle EDIT button click ---
+        if (target.classList.contains('edit-btn')) {
+            const cells = row.querySelectorAll('[data-label]');
+            cells.forEach(cell => cell.setAttribute('contenteditable', 'true'));
+            target.textContent = 'Save';
+            target.classList.remove('edit-btn');
+            target.classList.add('save-btn');
+            row.classList.add('editing');
+        }
+        // --- Handle SAVE button click ---
+        else if (target.classList.contains('save-btn')) {
+            const cells = row.querySelectorAll('[data-label]');
+            const rowData = Array.from(cells).map(cell => cell.textContent);
 
-            // Handle EDIT button click
-            if (target.classList.contains('edit-btn')) {
-                const cells = row.querySelectorAll('[contenteditable]');
-                cells.forEach(cell => cell.setAttribute('contenteditable', 'true'));
-                target.textContent = 'Save';
-                target.classList.remove('edit-btn');
-                target.classList.add('save-btn');
-                row.classList.add('editing');
-            }
-            // Handle SAVE button click
-            else if (target.classList.contains('save-btn')) {
-                const cells = row.querySelectorAll('[contenteditable]');
+            // Send updated data to the server
+            try {
+                const response = await fetch('/update-row', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rowIndex, rowData }),
+                });
+                if (!response.ok) throw new Error('Server responded with an error.');
+
+                // On success, revert UI
                 cells.forEach(cell => cell.setAttribute('contenteditable', 'false'));
                 target.textContent = 'Edit';
                 target.classList.remove('save-btn');
                 target.classList.add('edit-btn');
                 row.classList.remove('editing');
+                alert('Row updated successfully!');
+            } catch (error) {
+                console.error('Failed to save row:', error);
+                alert('Error: Could not save changes.');
             }
-            // Handle DELETE button click
-            else if (target.classList.contains('reject-btn')) {
-                if (confirm('Are you sure you want to delete this row?')) {
+        }
+        // --- Handle DELETE button click ---
+        else if (target.classList.contains('reject-btn')) {
+            if (confirm('Are you sure you want to delete this row? This action cannot be undone.')) {
+                try {
+                    const response = await fetch('/delete-row', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ rowIndex }),
+                    });
+                    if (!response.ok) throw new Error('Server responded with an error.');
+                    
+                    // On success, remove the row from the page
                     row.remove();
+                    alert('Row deleted successfully!');
+                } catch (error) {
+                    console.error('Failed to delete row:', error);
+                    alert('Error: Could not delete row.');
                 }
             }
-        });
-    }
+        }
+        // --- Handle CONTACT button click ---
+        else if (target.classList.contains('contact-btn')) {
+            const mobile = row.querySelector('[data-label="Mobile Number"]').textContent;
+            const email = row.querySelector('[data-label="Email ID"]').textContent;
 
-    // Event listener for the "Add New Row" button
-    if (addRowBtn) {
-        addRowBtn.addEventListener('click', () => {
-            const newRow = createNewRow();
-            if (gridBody) {
-                gridBody.appendChild(newRow);
+            const contactMethod = prompt(`How would you like to contact this person?\nType "mobile" or "email"`);
+
+            if (contactMethod && contactMethod.toLowerCase() === 'mobile') {
+                if (mobile) {
+                    window.location.href = `tel:${mobile}`;
+                } else {
+                    alert('No mobile number available for this user.');
+                }
+            } else if (contactMethod && contactMethod.toLowerCase() === 'email') {
+                if (email) {
+                    window.location.href = `mailto:${email}`;
+                } else {
+                    alert('No email address available for this user.');
+                }
             }
-        });
-    }
+        }
+    });
 });

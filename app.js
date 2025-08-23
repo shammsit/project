@@ -27,6 +27,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Google Sheets API Logic ---
+const SPREADSHEET_ID = '1u3ltAu6JEv0pW3VPxHHTs8wG5m5Wo3kjb6kK6PbY6bg';
+
 async function getAuthClient() {
     const auth = new google.auth.GoogleAuth({
         keyFile: path.join(__dirname, 'credentials.json'),
@@ -49,32 +51,19 @@ function requireAdminLogin(req, res, next) {
 }
 
 // --- Routes ---
-app.get('/', (req, res) => {
-    res.render('index');
-});
+app.get('/', (req, res) => { res.render('index'); });
+app.get('/signup', (req, res) => { res.render('signup'); });
 
-app.get('/signup', (req, res) => {
-    res.render('signup');
-});
-
-// --- UPDATED /data Route ---
 app.get('/data', requireAdminLogin, async (req, res) => {
     try {
         const authClient = await getAuthClient();
         const googleSheets = await getSheetsInstance(authClient);
-        const spreadsheetId = '1u3ltAu6JEv0pW3VPxHHTs8wG5m5Wo3kjb6kK6PbY6bg';
-
-        // Fetch all the data from the sheet
         const getRows = await googleSheets.spreadsheets.values.get({
-            spreadsheetId,
-            range: 'Sheet1!A2:J', // Get data from the second row onwards
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Sheet1!A2:J',
         });
-
         const sheetData = getRows.data.values || [];
-        
-        // Render the table page and pass the sheet data to it
         res.render('data/table', { sheetData });
-
     } catch (error) {
         console.error('Error reading from Google Sheets:', error);
         res.status(500).send('Error fetching data from the spreadsheet.');
@@ -93,44 +82,75 @@ app.post('/login', (req, res) => {
 
 app.post('/register', async (req, res) => {
     const { name, username, password, countryCode, mobile, email, projectName, role } = req.body;
-
     if (!name || !username || !password || !mobile || !email || !projectName || !role) {
         return res.status(400).json({ success: false, message: 'Missing required fields.' });
     }
-
     try {
         const authClient = await getAuthClient();
         const googleSheets = await getSheetsInstance(authClient);
-        const spreadsheetId = '1u3ltAu6JEv0pW3VPxHHTs8wG5m5Wo3kjb6kK6PbY6bg';
-
-        const newRow = [ name, username, password, `${countryCode}${mobile}`, email, projectName, role, '', '', '' ];
-
+        const newRow = [name, username, password, `${countryCode}${mobile}`, email, projectName, role, '', '', ''];
         await googleSheets.spreadsheets.values.append({
-            spreadsheetId,
+            spreadsheetId: SPREADSHEET_ID,
             range: 'Sheet1!A:J',
             valueInputOption: 'USER_ENTERED',
             resource: { values: [newRow] },
         });
-
-        res.json({
-            success: true,
-            message: 'Login and stay connected for get colaboration link , link will be available here within 72hr if you are eligible either you will be contacted'
-        });
-
+        res.json({ success: true, message: 'Login and stay connected...' });
     } catch (error) {
         console.error('Error writing to Google Sheets:', error);
-        res.status(500).json({ success: false, message: 'Server error. Could not save data.' });
+        res.status(500).json({ success: false, message: 'Server error.' });
+    }
+});
+
+// --- NEW: Route to update a row ---
+app.post('/update-row', requireAdminLogin, async (req, res) => {
+    const { rowIndex, rowData } = req.body;
+    try {
+        const authClient = await getAuthClient();
+        const googleSheets = await getSheetsInstance(authClient);
+        await googleSheets.spreadsheets.values.update({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `Sheet1!A${rowIndex}:G${rowIndex}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [rowData] },
+        });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating Google Sheet:', error);
+        res.status(500).json({ success: false });
+    }
+});
+
+// --- NEW: Route to delete a row ---
+app.post('/delete-row', requireAdminLogin, async (req, res) => {
+    const { rowIndex } = req.body;
+    try {
+        const authClient = await getAuthClient();
+        const googleSheets = await getSheetsInstance(authClient);
+        await googleSheets.spreadsheets.batchUpdate({
+            spreadsheetId: SPREADSHEET_ID,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: 0, // Assumes the first sheet
+                            dimension: 'ROWS',
+                            startIndex: rowIndex - 1,
+                            endIndex: rowIndex
+                        }
+                    }
+                }]
+            }
+        });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting from Google Sheet:', error);
+        res.status(500).json({ success: false });
     }
 });
 
 app.get('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.redirect('/data');
-        }
-        res.clearCookie('connect.sid');
-        res.redirect('/');
-    });
+    req.session.destroy(() => res.redirect('/'));
 });
 
 app.listen(PORT, () => {

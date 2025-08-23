@@ -17,8 +17,9 @@
         <!-- Grid Body (Dynamically Generated) -->
         <div id="data-grid-body" class="data-grid-body">
             <% if (sheetData && sheetData.length > 0) { %>
-                <% sheetData.forEach(row => { %>
-                    <div class="data-grid-row">
+                <% sheetData.forEach((row, index) => { %>
+                    <!-- Added data-row-index to identify each row -->
+                    <div class="data-grid-row" data-row-index="<%= index + 2 %>">
                         <div data-label="Name" contenteditable="false"><%= row[0] || '' %></div>
                         <div data-label="Username" contenteditable="false"><%= row[1] || '' %></div>
                         <div data-label="Password" contenteditable="false"><%= row[2] || '' %></div>
@@ -35,17 +36,12 @@
                     </div>
                 <% }); %>
             <% } else { %>
-                <p>No data found in the spreadsheet.</p>
+                <p class="no-data-message">No data found in the spreadsheet.</p>
             <% } %>
         </div>
     </div>
     
-    <!-- Table Controls -->
-    <div class="table-controls">
-        <button id="add-row-btn" class="btn add-btn">
-            <i class="fas fa-plus"></i> Add New Row
-        </button>
-    </div>
+    <!-- "Add Row" button has been removed -->
 </main>
 
 <%- include('../partials/footer') %>
