@@ -8,18 +8,32 @@
     <!-- Login Form Container -->
     <div class="login-container">
         <h3>SIGN IN</h3>
-        <form action="#">
+        <form id="login-form">
             <div class="input-group">
                 <input type="text" placeholder="Username" required>
             </div>
             <div class="input-group">
                 <input type="password" placeholder="Password" required>
             </div>
+
+            <!-- CAPTCHA Section -->
+            <div class="captcha-container">
+                <div id="captcha-box"></div>
+                <button type="button" id="refresh-captcha" class="refresh-btn">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="captcha-input" placeholder="Enter Captcha" required>
+            </div>
+            <!-- End CAPTCHA Section -->
+
             <div class="options">
                 <a href="#">Forgot Password</a>
                 <a href="#">Signup</a>
             </div>
             <button type="submit" class="login-btn">Login</button>
+            <p id="form-message"></p>
         </form>
     </div>
 </div>
