@@ -66,15 +66,11 @@ app.post('/login', (req, res) => {
 });
 
 // Logout Route
+// Logout Route
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
-        if (err) {
-            // Handle potential errors
-            return res.redirect('/data');
-        }
-        // Clear the session cookie and redirect to the homepage
-        res.clearCookie('connect.sid');
-        res.redirect('/');
+        // ... error handling ...
+        res.redirect('/'); // <-- This line sends the user back to the login page.
     });
 });
 
