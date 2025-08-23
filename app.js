@@ -1,44 +1,27 @@
-const canvas = document.getElementById('matrix');
-const ctx = canvas.getContext('2d');
+// Import required modules
+const express = require('express');
+const path = require('path');
 
-// Make canvas full screen
-canvas.height = window.innerHeight;
-canvas.width = window.innerWidth;
+// Initialize the Express app
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Characters
-const chars = "01";
-const fontSize = 16;
-const columns = canvas.width / fontSize;
+// Set the view engine to EJS
+app.set('view engine', 'ejs');
+// Set the path for views
+app.set('views', path.join(__dirname, 'views'));
 
-// Array of drops
-const drops = Array(Math.floor(columns)).fill(1);
+// Serve static files (CSS, client-side JS, images) from the 'public' directory
+// CORRECTED: __dirname is used to correctly locate the public folder.
+app.use(express.static(path.join(__dirname, 'public')));
 
-function draw() {
-  // Semi-transparent background to fade the characters
-  ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Define the route for the homepage
+app.get('/', (req, res) => {
+    // Render the index.ejs template
+    res.render('index');
+});
 
-  // Text style
-  ctx.fillStyle = "#0f0"; // green
-  ctx.font = fontSize + "px monospace";
-
-  // Looping over drops
-  for (let i = 0; i < drops.length; i++) {
-    const text = chars.charAt(Math.floor(Math.random() * chars.length));
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-    // Reset drop randomly
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-      drops[i] = 0;
-    }
-    drops[i]++;
-  }
-}
-
-setInterval(draw, 50);
-
-// Resize handler
-window.addEventListener('resize', () => {
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
