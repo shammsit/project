@@ -1,7 +1,7 @@
 <%- include('partials/header', { title: 'Signup' }) %>
 
-<main class="signup-main">
-    <div class="signup-container">
+<main>
+    <div class="login-container"> <!-- Using the same container as the login page -->
         <h3>CREATE ACCOUNT</h3>
         <form id="signup-form">
             <!-- Form Fields -->
@@ -47,7 +47,7 @@
                 </select>
             </div>
 
-            <!-- CAPTCHA Section -->
+            <!-- CAPTCHA Section (Corrected) -->
             <div class="captcha-container">
                 <div id="captcha-box"></div>
                 <button type="button" id="refresh-captcha" class="refresh-btn"><i class="fas fa-sync-alt"></i></button>
@@ -56,7 +56,7 @@
                 <input type="text" id="captcha-input" placeholder="Enter Captcha" required>
             </div>
 
-            <button type="submit" class="btn signup-btn">Submit Application</button>
+            <button type="submit" class="signup-btn">Submit Application</button>
             <p id="form-message"></p>
             <p class="login-link">Already have an account? <a href="/">Sign In</a></p>
         </form>
