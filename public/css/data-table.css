@@ -1,0 +1,19 @@
+/* --- Add these new styles to the end of your existing data-table.css file --- */
+
+/* Container for table control buttons */
+.table-controls {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* Styling for the "Add New Row" button */
+.add-btn {
+    background-color: #00ff41;
+    font-size: 1rem;
+    padding: 10px 20px;
+}
+
+.add-btn:hover {
+    background-color: #fff;
+    color: #000;
+}
