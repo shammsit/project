@@ -4,10 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshButton = document.getElementById('refresh-captcha');
     const loginForm = document.getElementById('login-form');
     const messageElement = document.getElementById('form-message');
+    const usernameInput = document.querySelector('input[placeholder="Username"]');
+    const passwordInput = document.querySelector('input[placeholder="Password"]');
 
     let captchaText = '';
 
-    // Function to generate a random alphanumeric string for the CAPTCHA
     const generateCaptcha = () => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
@@ -16,29 +17,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         captchaText = result;
         captchaBox.textContent = captchaText;
-        messageElement.textContent = ''; // Clear any previous messages
+        messageElement.textContent = '';
     };
 
-    // Event listener for the refresh button
     refreshButton.addEventListener('click', generateCaptcha);
 
-    // Event listener for the form submission
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // Prevent the form from submitting
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        // Validate the CAPTCHA
-        if (captchaInput.value === captchaText) {
-            messageElement.textContent = 'CAPTCHA Verified!';
-            messageElement.style.color = '#00ff41';
-            // In a real app, you would now send the form data to the server
-        } else {
+        if (captchaInput.value !== captchaText) {
             messageElement.textContent = 'Incorrect CAPTCHA. Please try again.';
-            messageElement.style.color = '#ff0000'; // Red for error
-            captchaInput.value = ''; // Clear the input
-            generateCaptcha(); // Generate a new CAPTCHA
+            messageElement.style.color = '#ff0000';
+            generateCaptcha();
+            return;
+        }
+
+        messageElement.textContent = 'Verifying...';
+        messageElement.style.color = '#00ff41';
+
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: usernameInput.value,
+                    password: passwordInput.value,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.redirect) {
+                // If login is successful and a redirect URL is provided, go to that page.
+                window.location.href = result.redirect;
+            } else {
+                // Otherwise, show the error message.
+                messageElement.textContent = result.message;
+                messageElement.style.color = '#ff0000';
+                generateCaptcha();
+            }
+        } catch (error) {
+            messageElement.textContent = 'Server connection error.';
+            messageElement.style.color = '#ff0000';
         }
     });
 
-    // Generate the first CAPTCHA when the page loads
     generateCaptcha();
 });

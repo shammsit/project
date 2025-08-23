@@ -1,78 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Table</title>
-    <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- Custom Stylesheet for Data Table -->
-    <link rel="stylesheet" href="/css/data-table.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-    <canvas id="matrix-bg"></canvas>
+<%- include('../partials/dashboard-header.ejs', { title: 'Admin Dashboard' }) %>
 
-    <header>
-        <h1>Admin Data Panel</h1>
-    </header>
+<main class="table-main">
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Mobile Number</th>
+                    <th>Email ID</th>
+                    <th>Project Name</th>
+                    <th>Role</th>
+                    <th>Approve</th>
+                    <th>Reject/Delete</th>
+                    <th>Contact</th>
+                </tr>
+            </thead>
+            <tbody id="data-table-body">
+                <!-- Example Row -->
+                <tr>
+                    <td contenteditable="true">John Doe</td>
+                    <td contenteditable="true">johndoe</td>
+                    <td contenteditable="true">********</td>
+                    <td contenteditable="true">123-456-7890</td>
+                    <td contenteditable="true">john.doe@email.com</td>
+                    <td contenteditable="true">Project Alpha</td>
+                    <td contenteditable="true">Developer</td>
+                    <td><button class="btn approve-btn">Approve</button></td>
+                    <td><button class="btn reject-btn">Reject</button></td>
+                    <td><button class="btn contact-btn">Contact</button></td>
+                </tr>
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+    </div>
+    <div class="table-controls">
+        <button id="add-row-btn" class="btn add-btn">Add New Row</button>
+        <a href="/logout" class="btn reject-btn">Logout</a>
+    </div>
+</main>
 
-    <main class="table-main">
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Mobile Number</th>
-                        <th>Email ID</th>
-                        <th>Project Name</th>
-                        <th>Role</th>
-                        <th>Approve</th>
-                        <th>Reject/Delete</th>
-                        <th>Contact</th>
-                    </tr>
-                </thead>
-                <tbody id="data-table-body">
-                    <!-- Example Row (you can generate these dynamically later) -->
-                    <tr>
-                        <td contenteditable="true">John Doe</td>
-                        <td contenteditable="true">johndoe</td>
-                        <td contenteditable="true">********</td>
-                        <td contenteditable="true">123-456-7890</td>
-                        <td contenteditable="true">john.doe@email.com</td>
-                        <td contenteditable="true">Project Alpha</td>
-                        <td contenteditable="true">Developer</td>
-                        <td><button class="btn approve-btn">Approve</button></td>
-                        <td><button class="btn reject-btn">Reject</button></td>
-                        <td><button class="btn contact-btn">Contact</button></td>
-                    </tr>
-                    <tr>
-                        <td contenteditable="true">Jane Smith</td>
-                        <td contenteditable="true">janesmith</td>
-                        <td contenteditable="true">********</td>
-                        <td contenteditable="true">987-654-3210</td>
-                        <td contenteditable="true">jane.smith@email.com</td>
-                        <td contenteditable="true">Project Beta</td>
-                        <td contenteditable="true">Designer</td>
-                        <td><button class="btn approve-btn">Approve</button></td>
-                        <td><button class="btn reject-btn">Reject</button></td>
-                        <td><button class="btn contact-btn">Contact</button></td>
-                    </tr>
-                    <!-- Add more rows as needed -->
-                </tbody>
-            </table>
-        </div>
-        <!-- Add Row Button -->
-        <div class="table-controls">
-            <button id="add-row-btn" class="btn add-btn">Add New Row</button>
-        </div>
-    </main>
-
-    <script src="/js/script.js"></script>
-    <!-- New script for table controls -->
-    <script src="/js/table-controls.js"></script>
-</body>
-</html>
+<%- include('../partials/footer') %>
