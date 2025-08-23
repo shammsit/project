@@ -4,7 +4,7 @@
 /* Basic setup for the hacker theme */
 body {
     background-color: #000;
-    color: #00BFFF; /* Deep Sky Blue text */
+    color: #00ff41; /* Bright green text */
     font-family: 'Fira Code', monospace;
     margin: 0;
     padding: 0;
@@ -27,7 +27,7 @@ body {
 /* Header styling */
 header {
     background: rgba(0, 0, 0, 0.7);
-    border-bottom: 1px solid #00BFFF;
+    border-bottom: 1px solid #00ff41;
     padding: 1rem;
     text-align: center;
     width: 100%;
@@ -57,7 +57,7 @@ main {
 /* Footer styling */
 footer {
     background: rgba(0, 0, 0, 0.7);
-    border-top: 1px solid #00BFFF;
+    border-top: 1px solid #00ff41;
     padding: 1.5rem;
     text-align: center;
     width: 100%;
@@ -72,7 +72,7 @@ footer {
 }
 
 .social-links a {
-    color: #00BFFF;
+    color: #00ff41;
     font-size: 1.75rem;
     text-decoration: none;
     transition: all 0.3s ease;
