@@ -78,3 +78,30 @@ app.get('/logout', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+// --- Add these new routes to your app.js file ---
+
+// Route to display the signup page
+app.get('/signup', (req, res) => {
+    res.render('signup');
+});
+
+// Route to handle the registration form submission
+app.post('/register', (req, res) => {
+    const userData = req.body;
+
+    // --- Server-Side Validation (important for security) ---
+    if (!userData.name || !userData.username || !userData.password) {
+        return res.status(400).json({ success: false, message: 'Missing required fields.' });
+    }
+    
+    // In a real application, you would save this data to your database or Google Sheet.
+    // For now, we will just log it to the console to confirm it was received.
+    console.log('New user registration received:');
+    console.log(userData);
+
+    // Send a success response
+    res.json({ 
+        success: true, 
+        message: 'Login and stay connected for get colaboration link , link will be available here within 72hr if you are eligible either you will be contacted' 
+    });
+});
