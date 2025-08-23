@@ -6,8 +6,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// The characters to be used in the rain effect (katakana for a classic matrix look)
-const characters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789';
+// The characters to be used in the rain effect (now binary)
+const characters = '01';
 const charactersArray = characters.split('');
 
 const fontSize = 16;
@@ -27,7 +27,7 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Set the color and font for the dropping characters
-    ctx.fillStyle = '#00ff41'; // Hacker green
+    ctx.fillStyle = '#00BFFF'; // Deep Sky Blue
     ctx.font = `${fontSize}px Fira Code`;
 
     // Loop through each column

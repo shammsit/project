@@ -4,12 +4,11 @@
 /* Basic setup for the hacker theme */
 body {
     background-color: #000;
-    color: #00ff41; /* Bright green text */
+    color: #00BFFF; /* Deep Sky Blue text */
     font-family: 'Fira Code', monospace;
-    /* Global text-shadow removed from here */
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Hide scrollbars as the content fits on one screen */
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -22,13 +21,13 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1; /* Place it behind all other content */
+    z-index: -1;
 }
 
 /* Header styling */
 header {
     background: rgba(0, 0, 0, 0.7);
-    border-bottom: 1px solid #00ff41;
+    border-bottom: 1px solid #00BFFF;
     padding: 1rem;
     text-align: center;
     width: 100%;
@@ -58,7 +57,7 @@ main {
 /* Footer styling */
 footer {
     background: rgba(0, 0, 0, 0.7);
-    border-top: 1px solid #00ff41;
+    border-top: 1px solid #00BFFF;
     padding: 1.5rem;
     text-align: center;
     width: 100%;
@@ -68,12 +67,12 @@ footer {
 .social-links {
     display: flex;
     justify-content: center;
-    gap: 2rem; /* This creates equal space between logos */
+    gap: 2rem;
     margin-top: 0.5rem;
 }
 
 .social-links a {
-    color: #00ff41;
+    color: #00BFFF;
     font-size: 1.75rem;
     text-decoration: none;
     transition: all 0.3s ease;
@@ -81,7 +80,6 @@ footer {
 
 .social-links a:hover {
     color: #fff;
-    /* Shadow effect is now only applied on hover */
     text-shadow: 0 0 8px #fff, 0 0 15px #fff;
     transform: scale(1.2);
 }
