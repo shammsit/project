@@ -24,7 +24,12 @@
             <div class="input-group">
                 <select name="projectName" required>
                     <option value="" disabled selected>Select Project Name</option>
-                    <option value="ResQva">ResQva</option>
+                    <!-- Dynamically populated project names -->
+                    <% if (projectNames && projectNames.length > 0) { %>
+                        <% projectNames.forEach(name => { %>
+                            <option value="<%= name %>"><%= name %></option>
+                        <% }); %>
+                    <% } %>
                     <option value="Other">Other</option>
                 </select>
             </div>

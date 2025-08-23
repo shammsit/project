@@ -41,6 +41,17 @@ async function getSheetsInstance(authClient) {
     return google.sheets({ version: 'v4', auth: authClient });
 }
 
+// --- NEW: Function to get all sheet names ---
+async function getSheetNames(authClient) {
+    const googleSheets = await getSheetsInstance(authClient);
+    const metaData = await googleSheets.spreadsheets.get({
+        spreadsheetId: SPREADSHEET_ID
+    });
+    const sheets = metaData.data.sheets || [];
+    return sheets.map(sheet => sheet.properties.title);
+}
+
+
 // --- Middleware to Protect Routes ---
 function requireAdminLogin(req, res, next) {
     if (req.session && req.session.isAdmin) {
@@ -52,7 +63,20 @@ function requireAdminLogin(req, res, next) {
 
 // --- Routes ---
 app.get('/', (req, res) => { res.render('index'); });
-app.get('/signup', (req, res) => { res.render('signup'); });
+
+// UPDATED: Signup route now fetches sheet names
+app.get('/signup', async (req, res) => {
+    try {
+        const authClient = await getAuthClient();
+        const sheetNames = await getSheetNames(authClient);
+        // We filter out the main "Sheet1" as it's not a project name
+        const projectNames = sheetNames.filter(name => name !== 'Sheet1');
+        res.render('signup', { projectNames });
+    } catch (error) {
+        console.error('Failed to fetch sheet names:', error);
+        res.render('signup', { projectNames: ['ResQva', 'Other'] }); // Fallback
+    }
+});
 
 app.get('/data', requireAdminLogin, async (req, res) => {
     try {
@@ -76,10 +100,11 @@ app.post('/login', (req, res) => {
         req.session.isAdmin = true;
         res.json({ success: true, redirect: '/data' });
     } else {
-        res.json({ success: false, message: 'Invalid username or password.' });
+        res.json({ success: false, message: 'Invalid credentials or CAPTCHA.' });
     }
 });
 
+// UPDATED: Register route now checks for existing users
 app.post('/register', async (req, res) => {
     const { name, username, password, countryCode, mobile, email, projectName, role } = req.body;
     if (!name || !username || !password || !mobile || !email || !projectName || !role) {
@@ -88,6 +113,18 @@ app.post('/register', async (req, res) => {
     try {
         const authClient = await getAuthClient();
         const googleSheets = await getSheetsInstance(authClient);
+
+        // 1. Check if user already exists
+        const getRows = await googleSheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Sheet1!B2:B', // Check only the username column
+        });
+        const existingUsernames = getRows.data.values?.map(row => row[0]) || [];
+        if (existingUsernames.includes(username)) {
+            return res.status(409).json({ success: false, message: 'Username already exists. Please login.' });
+        }
+
+        // 2. If user does not exist, append new row
         const newRow = [name, username, password, `${countryCode}${mobile}`, email, projectName, role, '', '', ''];
         await googleSheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
@@ -95,14 +132,13 @@ app.post('/register', async (req, res) => {
             valueInputOption: 'USER_ENTERED',
             resource: { values: [newRow] },
         });
-        res.json({ success: true, message: 'Login and stay connected...' });
+        res.json({ success: true, message: 'Login and stay connected for get colaboration link , link will be available here within 72hr if you are eligible either you will be contacted' });
     } catch (error) {
         console.error('Error writing to Google Sheets:', error);
         res.status(500).json({ success: false, message: 'Server error.' });
     }
 });
 
-// --- NEW: Route to update a row ---
 app.post('/update-row', requireAdminLogin, async (req, res) => {
     const { rowIndex, rowData } = req.body;
     try {
@@ -121,7 +157,6 @@ app.post('/update-row', requireAdminLogin, async (req, res) => {
     }
 });
 
-// --- NEW: Route to delete a row ---
 app.post('/delete-row', requireAdminLogin, async (req, res) => {
     const { rowIndex } = req.body;
     try {
@@ -133,7 +168,7 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
                 requests: [{
                     deleteDimension: {
                         range: {
-                            sheetId: 0, // Assumes the first sheet
+                            sheetId: 0,
                             dimension: 'ROWS',
                             startIndex: rowIndex - 1,
                             endIndex: rowIndex
