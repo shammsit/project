@@ -26,6 +26,7 @@
     padding: 12px 10px;
     border-bottom: 1px solid #008000;
     align-items: center;
+    transition: background-color 0.3s ease;
 }
 
 .data-grid-header {
@@ -38,16 +39,22 @@
     background-color: rgba(0, 255, 65, 0.15);
 }
 
+/* Style for rows in edit mode */
+.data-grid-row.editing {
+    background-color: rgba(0, 100, 255, 0.2);
+}
+
 .data-grid-row > div {
     word-wrap: break-word;
 }
 
-.data-grid-row > div[contenteditable="true"]:focus {
+.data-grid-row > div[contenteditable="true"] {
     background-color: #003300;
     outline: 1px solid #00ff41;
     padding: 5px;
     margin: -5px;
     border-radius: 4px;
+    cursor: text;
 }
 
 .actions-cell {
@@ -103,6 +110,13 @@
 
 .contact-btn { background-color: #41aaff; }
 .contact-btn:hover { background-color: #8fcfff; }
+
+.edit-btn, .save-btn {
+    background-color: #ffa500; /* Orange for edit/save */
+}
+.edit-btn:hover, .save-btn:hover {
+    background-color: #ffc966;
+}
 
 .table-controls {
     margin-top: 1.5rem;
