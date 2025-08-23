@@ -1,19 +1,135 @@
-/* --- Add these new styles to the end of your existing data-table.css file --- */
+/* Styling for the main container on the table page */
+.table-main {
+    padding: 2rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-/* Container for table control buttons */
+.table-container {
+    width: 100%;
+    max-width: 95vw;
+    background-color: rgba(20, 20, 20, 0.8);
+    border: 1px solid #00ff41;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #00ff41;
+}
+
+/* --- Responsive Grid Layout --- */
+.data-grid-header, .data-grid-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr) 1.5fr; /* 7 data columns, 1 actions column */
+    gap: 10px;
+    padding: 12px 10px;
+    border-bottom: 1px solid #008000;
+    align-items: center;
+}
+
+.data-grid-header {
+    background-color: #003300;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.data-grid-row:hover {
+    background-color: rgba(0, 255, 65, 0.15);
+}
+
+.data-grid-row > div {
+    word-wrap: break-word;
+}
+
+.data-grid-row > div[contenteditable="true"]:focus {
+    background-color: #003300;
+    outline: 1px solid #00ff41;
+    padding: 5px;
+    margin: -5px;
+    border-radius: 4px;
+}
+
+.actions-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .data-grid-header {
+        display: none; /* Hide header on mobile */
+    }
+
+    .data-grid-row {
+        grid-template-columns: 1fr; /* Stack columns vertically */
+        gap: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #008000;
+        border-radius: 8px;
+    }
+
+    .data-grid-row > div::before {
+        content: attr(data-label) ": "; /* Add labels for context */
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #fff;
+    }
+
+    .actions-cell {
+        justify-content: flex-start;
+    }
+}
+
+/* --- Button Styles --- */
+.btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    color: #000;
+    font-family: 'Fira Code', monospace;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.approve-btn { background-color: #00ff41; }
+.approve-btn:hover { background-color: #fff; }
+
+.reject-btn { background-color: #ff4141; color: #fff; }
+.reject-btn:hover { background-color: #ff8f8f; }
+
+.contact-btn { background-color: #41aaff; }
+.contact-btn:hover { background-color: #8fcfff; }
+
 .table-controls {
     margin-top: 1.5rem;
     text-align: center;
 }
 
-/* Styling for the "Add New Row" button */
 .add-btn {
     background-color: #00ff41;
     font-size: 1rem;
     padding: 10px 20px;
 }
+.add-btn:hover { background-color: #fff; color: #000; }
 
-.add-btn:hover {
-    background-color: #fff;
-    color: #000;
+/* Admin Header Styles */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-logout-btn {
+    color: #ff4141;
+    font-size: 1.5rem;
+    text-decoration: none;
+    padding: 0 1rem;
+    transition: color 0.3s ease;
+}
+.header-logout-btn:hover {
+    color: #fff;
 }

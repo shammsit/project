@@ -1,43 +1,59 @@
-<%- include('../partials/dashboard-header.ejs', { title: 'Admin Dashboard' }) %>
+<%- include('../partials/dashboard-header', { title: 'Admin Dashboard' }) %>
 
 <main class="table-main">
     <div class="table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th>Mobile Number</th>
-                    <th>Email ID</th>
-                    <th>Project Name</th>
-                    <th>Role</th>
-                    <th>Approve</th>
-                    <th>Reject/Delete</th>
-                    <th>Contact</th>
-                </tr>
-            </thead>
-            <tbody id="data-table-body">
-                <!-- Example Row -->
-                <tr>
-                    <td contenteditable="true">John Doe</td>
-                    <td contenteditable="true">johndoe</td>
-                    <td contenteditable="true">********</td>
-                    <td contenteditable="true">123-456-7890</td>
-                    <td contenteditable="true">john.doe@email.com</td>
-                    <td contenteditable="true">Project Alpha</td>
-                    <td contenteditable="true">Developer</td>
-                    <td><button class="btn approve-btn">Approve</button></td>
-                    <td><button class="btn reject-btn">Reject</button></td>
-                    <td><button class="btn contact-btn">Contact</button></td>
-                </tr>
-                <!-- Add more rows as needed -->
-            </tbody>
-        </table>
+        <!-- Responsive Grid Header -->
+        <div class="data-grid-header">
+            <div>Name</div>
+            <div>Username</div>
+            <div>Password</div>
+            <div>Mobile Number</div>
+            <div>Email ID</div>
+            <div>Project Name</div>
+            <div>Role</div>
+            <div class="actions-header">Actions</div>
+        </div>
+
+        <!-- Grid Body -->
+        <div id="data-grid-body" class="data-grid-body">
+            <!-- Example Row 1 -->
+            <div class="data-grid-row">
+                <div data-label="Name" contenteditable="true">John Doe</div>
+                <div data-label="Username" contenteditable="true">johndoe</div>
+                <div data-label="Password" contenteditable="true">********</div>
+                <div data-label="Mobile Number" contenteditable="true">123-456-7890</div>
+                <div data-label="Email ID" contenteditable="true">john.doe@email.com</div>
+                <div data-label="Project Name" contenteditable="true">Project Alpha</div>
+                <div data-label="Role" contenteditable="true">Developer</div>
+                <div class="actions-cell">
+                    <button class="btn approve-btn">Approve</button>
+                    <button class="btn reject-btn">Reject</button>
+                    <button class="btn contact-btn">Contact</button>
+                </div>
+            </div>
+             <!-- Example Row 2 -->
+            <div class="data-grid-row">
+                <div data-label="Name" contenteditable="true">Jane Smith</div>
+                <div data-label="Username" contenteditable="true">janesmith</div>
+                <div data-label="Password" contenteditable="true">********</div>
+                <div data-label="Mobile Number" contenteditable="true">987-654-3210</div>
+                <div data-label="Email ID" contenteditable="true">jane.smith@email.com</div>
+                <div data-label="Project Name" contenteditable="true">Project Beta</div>
+                <div data-label="Role" contenteditable="true">Designer</div>
+                <div class="actions-cell">
+                    <button class="btn approve-btn">Approve</button>
+                    <button class="btn reject-btn">Reject</button>
+                    <button class="btn contact-btn">Contact</button>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- Table Controls -->
     <div class="table-controls">
-        <button id="add-row-btn" class="btn add-btn">Add New Row</button>
-        <a href="/logout" class="btn reject-btn">Logout</a>
+        <button id="add-row-btn" class="btn add-btn">
+            <i class="fas fa-plus"></i> Add New Row
+        </button>
     </div>
 </main>
 
