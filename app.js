@@ -48,7 +48,8 @@ async function getSheetNames(authClient) {
         spreadsheetId: SPREADSHEET_ID
     });
     const sheets = metaData.data.sheets || [];
-    return sheets.map(sheet => sheet.properties.title);
+    // Filter out the sheet named "other" which is our main data sheet
+    return sheets.map(sheet => sheet.properties.title).filter(title => title.toLowerCase() !== 'other');
 }
 
 
@@ -69,9 +70,7 @@ app.get('/signup', async (req, res) => {
     try {
         const authClient = await getAuthClient();
         const sheetNames = await getSheetNames(authClient);
-        // We filter out the main "Sheet1" as it's not a project name
-        const projectNames = sheetNames.filter(name => name !== 'Sheet1');
-        res.render('signup', { projectNames });
+        res.render('signup', { projectNames: sheetNames });
     } catch (error) {
         console.error('Failed to fetch sheet names:', error);
         res.render('signup', { projectNames: ['ResQva', 'Other'] }); // Fallback
@@ -84,7 +83,7 @@ app.get('/data', requireAdminLogin, async (req, res) => {
         const googleSheets = await getSheetsInstance(authClient);
         const getRows = await googleSheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'Sheet1!A2:J',
+            range: 'other!A2:J', // Changed from Sheet1 to other
         });
         const sheetData = getRows.data.values || [];
         res.render('data/table', { sheetData });
@@ -117,7 +116,7 @@ app.post('/register', async (req, res) => {
         // 1. Check if user already exists
         const getRows = await googleSheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'Sheet1!B2:B', // Check only the username column
+            range: 'other!B2:B', // Changed from Sheet1 to other
         });
         const existingUsernames = getRows.data.values?.map(row => row[0]) || [];
         if (existingUsernames.includes(username)) {
@@ -128,7 +127,7 @@ app.post('/register', async (req, res) => {
         const newRow = [name, username, password, `${countryCode}${mobile}`, email, projectName, role, '', '', ''];
         await googleSheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'Sheet1!A:J',
+            range: 'other!A:J', // Changed from Sheet1 to other
             valueInputOption: 'USER_ENTERED',
             resource: { values: [newRow] },
         });
@@ -146,7 +145,7 @@ app.post('/update-row', requireAdminLogin, async (req, res) => {
         const googleSheets = await getSheetsInstance(authClient);
         await googleSheets.spreadsheets.values.update({
             spreadsheetId: SPREADSHEET_ID,
-            range: `Sheet1!A${rowIndex}:G${rowIndex}`,
+            range: `other!A${rowIndex}:G${rowIndex}`, // Changed from Sheet1 to other
             valueInputOption: 'USER_ENTERED',
             resource: { values: [rowData] },
         });
@@ -168,7 +167,7 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
                 requests: [{
                     deleteDimension: {
                         range: {
-                            sheetId: 0,
+                            sheetId: 0, // This might need to be changed if "other" is not the first sheet
                             dimension: 'ROWS',
                             startIndex: rowIndex - 1,
                             endIndex: rowIndex
