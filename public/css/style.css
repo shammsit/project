@@ -6,7 +6,7 @@ body {
     background-color: #000;
     color: #00ff41; /* Bright green text */
     font-family: 'Fira Code', monospace;
-    /* text-shadow has been removed */
+    /* Global text-shadow removed from here */
     margin: 0;
     padding: 0;
     overflow: hidden; /* Hide scrollbars as the content fits on one screen */
@@ -38,7 +38,6 @@ header {
 header h1 {
     font-size: 1.5rem;
     margin: 0;
-    /* text-shadow has been removed */
 }
 
 /* Main content area */
@@ -69,7 +68,7 @@ footer {
 .social-links {
     display: flex;
     justify-content: center;
-    gap: 2rem; /* Increased space */
+    gap: 2rem; /* This creates equal space between logos */
     margin-top: 0.5rem;
 }
 
@@ -82,24 +81,7 @@ footer {
 
 .social-links a:hover {
     color: #fff;
-    /* text-shadow has been removed */
+    /* Shadow effect is now only applied on hover */
+    text-shadow: 0 0 8px #fff, 0 0 15px #fff;
     transform: scale(1.2);
-}
-
-/* Flicker animation for text (kept in case you want to use it elsewhere) */
-@keyframes flicker {
-  0%, 18%, 22%, 25%, 53%, 57%, 100% {
-    text-shadow:
-    0 0 4px #00ff41,
-    0 0 11px #00ff41,
-    0 0 19px #00ff41,
-    0 0 40px #0fa,
-    0 0 80px #0fa,
-    0 0 90px #0fa,
-    0 0 100px #0fa,
-    0 0 150px #0fa;
-  }
-  20%, 24%, 55% {        
-    text-shadow: none;
-  }
 }
