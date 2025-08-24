@@ -102,10 +102,9 @@ app.post('/login', async (req, res) => {
         return res.json({ success: true, redirect: '/data' });
     }
 
-    // If not admin, check the Google Sheet for regular users (future functionality)
-    // For now, we will provide specific feedback for the admin login
+    // Provide specific feedback for admin login failures
     if (username === 'admin05' && password !== '2005#sg') {
-        return res.json({ success: false, message: 'Wrong Password. Please try again or go for forgot password or contact admin from the links below.' });
+        return res.json({ success: false, message: "Wrong Password. Please try again, use 'Forgot Password', or contact an admin from the links below." });
     } else {
         return res.json({ success: false, message: 'This user ID does not exist. Please sign up first.' });
     }
