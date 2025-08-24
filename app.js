@@ -41,7 +41,7 @@ async function getSheetsInstance(authClient) {
     return google.sheets({ version: 'v4', auth: authClient });
 }
 
-// --- NEW: Function to get all sheet names ---
+// --- Function to get all sheet names ---
 async function getSheetNames(authClient) {
     const googleSheets = await getSheetsInstance(authClient);
     const metaData = await googleSheets.spreadsheets.get({
@@ -65,7 +65,6 @@ function requireAdminLogin(req, res, next) {
 // --- Routes ---
 app.get('/', (req, res) => { res.render('index'); });
 
-// UPDATED: Signup route now fetches sheet names
 app.get('/signup', async (req, res) => {
     try {
         const authClient = await getAuthClient();
@@ -83,7 +82,7 @@ app.get('/data', requireAdminLogin, async (req, res) => {
         const googleSheets = await getSheetsInstance(authClient);
         const getRows = await googleSheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'other!A2:J', // Changed from Sheet1 to other
+            range: 'other!A2:J',
         });
         const sheetData = getRows.data.values || [];
         res.render('data/table', { sheetData });
@@ -93,18 +92,26 @@ app.get('/data', requireAdminLogin, async (req, res) => {
     }
 });
 
-app.post('/login', (req, res) => {
+// UPDATED: Login route with specific error messages
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+
+    // First, check for the special admin login
     if (username === 'admin05' && password === '2005#sg') {
         req.session.isAdmin = true;
-        res.json({ success: true, redirect: '/data' });
+        return res.json({ success: true, redirect: '/data' });
+    }
+
+    // If not admin, check the Google Sheet for regular users (future functionality)
+    // For now, we will provide specific feedback for the admin login
+    if (username === 'admin05' && password !== '2005#sg') {
+        return res.json({ success: false, message: 'Wrong Password. Please try again or go for forgot password or contact admin from the links below.' });
     } else {
-        // Updated error message for more specific feedback
-        res.json({ success: false, message: 'Incorrect username or password.' });
+        return res.json({ success: false, message: 'This user ID does not exist. Please sign up first.' });
     }
 });
 
-// UPDATED: Register route now checks for existing users
+
 app.post('/register', async (req, res) => {
     const { name, username, password, countryCode, mobile, email, projectName, role } = req.body;
     if (!name || !username || !password || !mobile || !email || !projectName || !role) {
@@ -114,25 +121,23 @@ app.post('/register', async (req, res) => {
         const authClient = await getAuthClient();
         const googleSheets = await getSheetsInstance(authClient);
 
-        // 1. Check if user already exists
         const getRows = await googleSheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'other!B2:B', // Changed from Sheet1 to other
+            range: 'other!B2:B',
         });
         const existingUsernames = getRows.data.values?.map(row => row[0]) || [];
         if (existingUsernames.includes(username)) {
             return res.status(409).json({ success: false, message: 'Username already exists. Please login.' });
         }
 
-        // 2. If user does not exist, append new row
         const newRow = [name, username, password, `${countryCode}${mobile}`, email, projectName, role, '', '', ''];
         await googleSheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'other!A:J', // Changed from Sheet1 to other
+            range: 'other!A:J',
             valueInputOption: 'USER_ENTERED',
             resource: { values: [newRow] },
         });
-        res.json({ success: true, message: 'Login and stay connected for get colaboration link , link will be available here within 72hr if you are eligible either you will be contacted' });
+        res.json({ success: true, message: 'Login and stay connected for the collaboration link. The link will be available here within 72 hours if you are eligible; otherwise, you will be contacted.' });
     } catch (error) {
         console.error('Error writing to Google Sheets:', error);
         res.status(500).json({ success: false, message: 'Server error.' });
@@ -146,7 +151,7 @@ app.post('/update-row', requireAdminLogin, async (req, res) => {
         const googleSheets = await getSheetsInstance(authClient);
         await googleSheets.spreadsheets.values.update({
             spreadsheetId: SPREADSHEET_ID,
-            range: `other!A${rowIndex}:G${rowIndex}`, // Changed from Sheet1 to other
+            range: `other!A${rowIndex}:G${rowIndex}`,
             valueInputOption: 'USER_ENTERED',
             resource: { values: [rowData] },
         });
@@ -168,7 +173,7 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
                 requests: [{
                     deleteDimension: {
                         range: {
-                            sheetId: 0, // This might need to be changed if "other" is not the first sheet
+                            sheetId: 0,
                             dimension: 'ROWS',
                             startIndex: rowIndex - 1,
                             endIndex: rowIndex
