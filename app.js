@@ -99,7 +99,8 @@ app.post('/login', (req, res) => {
         req.session.isAdmin = true;
         res.json({ success: true, redirect: '/data' });
     } else {
-        res.json({ success: false, message: 'Invalid credentials or CAPTCHA.' });
+        // Updated error message for more specific feedback
+        res.json({ success: false, message: 'Incorrect username or password.' });
     }
 });
 
