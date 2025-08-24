@@ -92,17 +92,14 @@ app.get('/data', requireAdminLogin, async (req, res) => {
     }
 });
 
-// UPDATED: Login route with specific error messages
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
-    // First, check for the special admin login
     if (username === 'admin05' && password === '2005#sg') {
         req.session.isAdmin = true;
         return res.json({ success: true, redirect: '/data' });
     }
 
-    // Provide specific feedback for admin login failures
     if (username === 'admin05' && password !== '2005#sg') {
         return res.json({ success: false, message: "Wrong Password. Please try again, use 'Forgot Password', or contact an admin from the links below." });
     } else {
@@ -187,6 +184,52 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
+
+// --- NEW: Route to approve a user ---
+app.post('/approve-user', requireAdminLogin, async (req, res) => {
+    const { rowIndex, rowData } = req.body;
+    const projectName = rowData[5]; // Project Name is the 6th column (index 5)
+
+    if (!projectName) {
+        return res.status(400).json({ success: false, message: 'Project name is missing.' });
+    }
+
+    try {
+        const authClient = await getAuthClient();
+        const googleSheets = await getSheetsInstance(authClient);
+
+        // 1. Append the data to the project-specific sheet
+        await googleSheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `${projectName}!A:J`, // Use the project name as the sheet name
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [rowData] },
+        });
+
+        // 2. Delete the original row from the "other" sheet
+        await googleSheets.spreadsheets.batchUpdate({
+            spreadsheetId: SPREADSHEET_ID,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: 0, // Assumes "other" is the first sheet
+                            dimension: 'ROWS',
+                            startIndex: rowIndex - 1,
+                            endIndex: rowIndex
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error approving user:', error);
+        res.status(500).json({ success: false, message: 'Failed to approve user. Ensure a sheet with the correct project name exists.' });
+    }
+});
+
 
 app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));

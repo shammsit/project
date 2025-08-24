@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const cells = row.querySelectorAll('[data-label]');
             const rowData = Array.from(cells).map(cell => cell.textContent);
 
-            // Send updated data to the server
             try {
                 const response = await fetch('/update-row', {
                     method: 'POST',
@@ -33,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (!response.ok) throw new Error('Server responded with an error.');
 
-                // On success, revert UI
                 cells.forEach(cell => cell.setAttribute('contenteditable', 'false'));
                 target.textContent = 'Edit';
                 target.classList.remove('save-btn');
@@ -56,12 +54,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     if (!response.ok) throw new Error('Server responded with an error.');
                     
-                    // On success, remove the row from the page
                     row.remove();
                     alert('Row deleted successfully!');
                 } catch (error) {
                     console.error('Failed to delete row:', error);
                     alert('Error: Could not delete row.');
+                }
+            }
+        }
+        // --- Handle APPROVE button click ---
+        else if (target.classList.contains('approve-btn')) {
+            if (confirm('Are you sure you want to approve this user and move their data?')) {
+                const cells = row.querySelectorAll('[data-label]');
+                const rowData = Array.from(cells).map(cell => cell.textContent);
+                
+                try {
+                    const response = await fetch('/approve-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ rowIndex, rowData }),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        row.remove();
+                        alert('User approved and data moved successfully!');
+                    } else {
+                        throw new Error(result.message || 'Failed to approve user.');
+                    }
+                } catch (error) {
+                    console.error('Failed to approve user:', error);
+                    alert(`Error: ${error.message}`);
                 }
             }
         }
@@ -72,13 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const contactMethod = prompt(`How would you like to contact this person?\nType "mobile" or "email"`);
 
-            if (contactMethod && contactMethod.toLowerCase() === 'mobile') {
+            if (contactMethod?.toLowerCase() === 'mobile') {
                 if (mobile) {
                     window.location.href = `tel:${mobile}`;
                 } else {
                     alert('No mobile number available for this user.');
                 }
-            } else if (contactMethod && contactMethod.toLowerCase() === 'email') {
+            } else if (contactMethod?.toLowerCase() === 'email') {
                 if (email) {
                     window.location.href = `mailto:${email}`;
                 } else {
