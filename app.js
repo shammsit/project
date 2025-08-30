@@ -48,14 +48,20 @@ async function getSheetNames(authClient) {
         spreadsheetId: SPREADSHEET_ID
     });
     const sheets = metaData.data.sheets || [];
-    // Filter out the sheet named "other" which is our main data sheet
-    return sheets.map(sheet => sheet.properties.title).filter(title => title.toLowerCase() !== 'other');
+    return sheets.map(sheet => sheet.properties.title);
 }
-
 
 // --- Middleware to Protect Routes ---
 function requireAdminLogin(req, res, next) {
     if (req.session && req.session.isAdmin) {
+        return next();
+    } else {
+        res.redirect('/');
+    }
+}
+
+function requireUserLogin(req, res, next) {
+    if (req.session && req.session.user) {
         return next();
     } else {
         res.redirect('/');
@@ -69,13 +75,76 @@ app.get('/signup', async (req, res) => {
     try {
         const authClient = await getAuthClient();
         const sheetNames = await getSheetNames(authClient);
-        res.render('signup', { projectNames: sheetNames });
+        const filtered = sheetNames.filter(name => name.toLowerCase() !== 'other');
+        res.render('signup', { projectNames: filtered });
     } catch (error) {
         console.error('Failed to fetch sheet names:', error);
-        res.render('signup', { projectNames: ['ResQva', 'Other'] }); // Fallback
+        res.render('signup', { projectNames: ['ResQva', 'Other'] }); // fallback
     }
 });
 
+// --- UNIFIED LOGIN (Admin + User) ---
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const authClient = await getAuthClient();
+        const googleSheets = await getSheetsInstance(authClient);
+
+        // --- Check Admin (stored in "other" sheet or hardcoded) ---
+        const adminResult = await googleSheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `other!A2:Z`,
+        });
+
+        const adminRows = adminResult.data.values || [];
+        for (const row of adminRows) {
+            const [name, userUsername, userPassword] = row;
+            if (userUsername === username && userPassword === password) {
+                req.session.isAdmin = true;
+                req.session.admin = { name };
+                return res.json({ success: true, redirect: '/data' });
+            }
+        }
+
+        // --- If not admin, check all project sheets (except "other") ---
+        const sheetNames = await getSheetNames(authClient);
+
+        let foundUser = null;
+        for (const sheetName of sheetNames) {
+            if (sheetName.toLowerCase() === "other") continue;
+
+            const result = await googleSheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: `${sheetName}!A2:Z`,
+            });
+
+            const rows = result.data.values || [];
+            for (const row of rows) {
+                const [name, userUsername, userPassword] = row;
+                if (userUsername === username && userPassword === password) {
+                    foundUser = { name, project: sheetName };
+                    break;
+                }
+            }
+            if (foundUser) break;
+        }
+
+        if (foundUser) {
+            req.session.user = foundUser;
+            return res.json({ success: true, redirect: '/user-dashboard' });
+        }
+
+        // --- If nothing matched ---
+        return res.json({ success: false, message: "Invalid credentials. Please try again." });
+
+    } catch (error) {
+        console.error("Login error:", error);
+        return res.json({ success: false, message: "Server error during login." });
+    }
+});
+
+// --- Admin Data Table ---
 app.get('/data', requireAdminLogin, async (req, res) => {
     try {
         const authClient = await getAuthClient();
@@ -92,22 +161,12 @@ app.get('/data', requireAdminLogin, async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-
-    if (username === 'admin05' && password === '2005#sg') {
-        req.session.isAdmin = true;
-        return res.json({ success: true, redirect: '/data' });
-    }
-
-    if (username === 'admin05' && password !== '2005#sg') {
-        return res.json({ success: false, message: "Wrong Password. Please try again, use 'Forgot Password', or contact an admin from the links below." });
-    } else {
-        return res.json({ success: false, message: 'This user ID does not exist. Please sign up first.' });
-    }
+// --- User Dashboard ---
+app.get('/user-dashboard', requireUserLogin, (req, res) => {
+    res.render('user-dashboard', { user: req.session.user });
 });
 
-
+// --- Register New User ---
 app.post('/register', async (req, res) => {
     const { name, username, password, countryCode, mobile, email, projectName, role } = req.body;
     if (!name || !username || !password || !mobile || !email || !projectName || !role) {
@@ -140,6 +199,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
+// --- Update Row (Admin only) ---
 app.post('/update-row', requireAdminLogin, async (req, res) => {
     const { rowIndex, rowData } = req.body;
     try {
@@ -158,6 +218,7 @@ app.post('/update-row', requireAdminLogin, async (req, res) => {
     }
 });
 
+// --- Delete Row (Admin only) ---
 app.post('/delete-row', requireAdminLogin, async (req, res) => {
     const { rowIndex } = req.body;
     try {
@@ -185,17 +246,15 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
     }
 });
 
-// --- Route to approve a project ---
+// --- Approve User (Move from "other" to project sheet) ---
 app.post('/approve-user', requireAdminLogin, async (req, res) => {
     const { projectName, rowIndex } = req.body; 
-    // rowIndex = index of the row in the "other" sheet
-    // projectName = the project name to move data into the sheet with same name
 
     try {
         const auth = await getAuthClient();
         const sheets = google.sheets({ version: 'v4', auth });
 
-        const sourceSheet = "other"; // <-- CHANGE if your sheet of unapproved projects has a different name
+        const sourceSheet = "other";
 
         // 1. Get row data from source sheet
         const rowRange = `${sourceSheet}!A${rowIndex}:Z${rowIndex}`; 
@@ -210,7 +269,7 @@ app.post('/approve-user', requireAdminLogin, async (req, res) => {
 
         const rowData = rowRes.data.values[0];
 
-        // 2. Append row to target sheet (must exist, same name as projectName)
+        // 2. Append row to target sheet
         await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
             range: `${projectName}!A1`,
@@ -228,9 +287,9 @@ app.post('/approve-user', requireAdminLogin, async (req, res) => {
                     {
                         deleteDimension: {
                             range: {
-                                sheetId: 0,  // ID of "other" sheet, use real ID if different
+                                sheetId: 0,  // ID of "other" sheet, adjust if needed
                                 dimension: "ROWS",
-                                startIndex: rowIndex - 1, // API is 0-based
+                                startIndex: rowIndex - 1,
                                 endIndex: rowIndex,
                             },
                         },
@@ -250,64 +309,12 @@ app.post('/approve-user', requireAdminLogin, async (req, res) => {
     }
 });
 
-
+// --- Logout ---
 app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));
 });
 
+// --- Start Server ---
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
-});
-// --- USER LOGIN (non-admin, from project sheets except "other") ---
-app.post('/user-login', async (req, res) => {
-    const { username, password } = req.body;
-
-    try {
-        const authClient = await getAuthClient();
-        const googleSheets = await getSheetsInstance(authClient);
-
-        // Get all sheet names except "other"
-        const sheetNames = await getSheetNames(authClient);
-
-        let foundUser = null;
-
-        // Loop through each project sheet
-        for (const sheetName of sheetNames) {
-            const result = await googleSheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: `${sheetName}!A2:Z`, // assumes headers in row 1
-            });
-
-            const rows = result.data.values || [];
-
-            for (const row of rows) {
-                const [name, userUsername, userPassword] = row;
-
-                if (userUsername === username && userPassword === password) {
-                    foundUser = { name, project: sheetName };
-                    break;
-                }
-            }
-            if (foundUser) break;
-        }
-
-        if (foundUser) {
-            req.session.user = foundUser;
-            return res.json({ success: true, redirect: '/user-dashboard' });
-        } else {
-            return res.json({ success: false, message: "Invalid credentials. Please try again." });
-        }
-
-    } catch (error) {
-        console.error("User login error:", error);
-        return res.json({ success: false, message: "Server error during login." });
-    }
-});
-
-// --- USER DASHBOARD ROUTE ---
-app.get('/user-dashboard', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/');
-    }
-    res.render('user-dashboard', { user: req.session.user });
 });
