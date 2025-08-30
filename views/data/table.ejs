@@ -1,49 +1,28 @@
-<%- include('../partials/admin-dashboard-header.ejs') %>
+<%- include('partials/admin-dashboard-header.ejs') %>
 
 <main class="table-main">
-    <h1 color="green">Requested Users :</h1><br>
-    <div class="table-container">
-        <!-- Responsive Grid Header -->
-        <div class="data-grid-header">
-            <div>Name</div>
-            <div>Username</div>
-            <div>Password</div>
-            <div>Mobile Number</div>
-            <div>Email ID</div>
-            <div>Project Name</div>
-            <div>Role</div>
-            <div class="actions-header">Actions</div>
-        </div>
+    <h1>Project: <%= sheetName %></h1><br>
 
-        <!-- Grid Body (Dynamically Generated) -->
-        <div id="data-grid-body" class="data-grid-body">
-            <% if (sheetData && sheetData.length > 0) { %>
-                <% sheetData.forEach((row, index) => { %>
-                    <!-- Added data-row-index to identify each row -->
-                    <div class="data-grid-row" data-row-index="<%= index + 2 %>">
-                        <div data-label="Name" contenteditable="false"><%= row[0] || '' %></div>
-                        <div data-label="Username" contenteditable="false"><%= row[1] || '' %></div>
-                        <div data-label="Password" contenteditable="false"><%= row[2] || '' %></div>
-                        <div data-label="Mobile Number" contenteditable="false"><%= row[3] || '' %></div>
-                        <div data-label="Email ID" contenteditable="false"><%= row[4] || '' %></div>
-                        <div data-label="Project Name" contenteditable="false"><%= row[5] || '' %></div>
-                        <div data-label="Role" contenteditable="false"><%= row[6] || '' %></div>
-                        <div class="actions-cell">
-                            <button class="btn edit-btn">Edit</button>
-                            <button class="btn approve-btn">Approve</button>
-                            <button class="btn reject-btn">Delete</button>
-                            <button class="btn contact-btn">Contact</button>
-                        </div>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <p class="no-data-message">Norequest pending.</p>
-            <% } %>
-        </div>
-    </div>
-    
-    <!-- "Add Row" button has been removed -->
+    <table border="1" class="data-table">
+        <thead>
+            <tr>
+                <% Object.keys(data[0] || {}).forEach(key => { %>
+                    <th><%= key %></th>
+                <% }) %>
+            </tr>
+        </thead>
+        <tbody>
+            <% data.forEach(row => { %>
+                <tr>
+                    <% Object.values(row).forEach(value => { %>
+                        <td><%= value %></td>
+                    <% }) %>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
 </main>
+
 
 <!-- This script is required for the buttons to work -->
 <script src="/js/table-controls.js"></script>

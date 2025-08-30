@@ -150,7 +150,13 @@ app.post("/login", async (req, res) => {
 
 // --- Dashboards ---
 app.get("/admin-dashboard", requireAdminLogin, (req, res) => {
-  res.render("admin_dashboard", { user: req.session.user });
+  // get all sheet names except "admin"
+const projectSheets = Object.keys(worksheetData).filter(name => name !== "admin");
+
+res.render("admin_dashboard", { 
+  user: req.session.user,
+  projectSheets
+});
 });
 
 app.get("/user-dashboard", requireUserLogin, (req, res) => {
@@ -367,4 +373,14 @@ app.get("/logout", (req, res) => {
 // --- Start Server ---
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+});
+app.get("/project/:sheetName", (req, res) => {
+    const sheetName = req.params.sheetName;
+    const data = worksheetData[sheetName];
+
+    if (!data) {
+        return res.status(404).send("Project sheet not found");
+    }
+
+    res.render("data/table", { sheetName, data });
 });
