@@ -26,7 +26,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- Google Sheets API Logic ---
+// --- Google Sheets API Setup ---
 const SPREADSHEET_ID = '1u3ltAu6JEv0pW3VPxHHTs8wG5m5Wo3kjb6kK6PbY6bg';
 
 async function getAuthClient() {
@@ -53,7 +53,7 @@ async function getSheetNames(authClient) {
 
 // --- Middleware to Protect Routes ---
 function requireAdminLogin(req, res, next) {
-    if (req.session && req.session.isAdmin) {
+    if (req.session && req.session.admin) {
         return next();
     } else {
         res.redirect('/');
@@ -69,17 +69,23 @@ function requireUserLogin(req, res, next) {
 }
 
 // --- Routes ---
-app.get('/', (req, res) => { res.render('index'); });
+// Login page
+app.get('/', (req, res) => {
+    res.render('index');
+});
 
+// Signup (fetch project names)
 app.get('/signup', async (req, res) => {
     try {
         const authClient = await getAuthClient();
         const sheetNames = await getSheetNames(authClient);
-        const filtered = sheetNames.filter(name => name.toLowerCase() !== 'other');
+        const filtered = sheetNames.filter(
+            name => name.toLowerCase() !== 'other' && name.toLowerCase() !== 'admin'
+        );
         res.render('signup', { projectNames: filtered });
     } catch (error) {
         console.error('Failed to fetch sheet names:', error);
-        res.render('signup', { projectNames: ['ResQva', 'Other'] }); // fallback
+        res.render('signup', { projectNames: [] }); // fallback
     }
 });
 
@@ -90,29 +96,30 @@ app.post('/login', async (req, res) => {
     try {
         const authClient = await getAuthClient();
         const googleSheets = await getSheetsInstance(authClient);
-
-        // --- Check Admin (stored in "other" sheet or hardcoded) ---
-        const adminResult = await googleSheets.spreadsheets.values.get({
-            spreadsheetId: SPREADSHEET_ID,
-            range: `other!A2:Z`,
-        });
-
-        const adminRows = adminResult.data.values || [];
-        for (const row of adminRows) {
-            const [name, userUsername, userPassword] = row;
-            if (userUsername === username && userPassword === password) {
-                req.session.isAdmin = true;
-                req.session.admin = { name };
-                return res.json({ success: true, redirect: '/data' });
-            }
-        }
-
-        // --- If not admin, check all project sheets (except "other") ---
         const sheetNames = await getSheetNames(authClient);
 
         let foundUser = null;
+
+        // 1. Check Admin sheet
+        if (sheetNames.includes("admin")) {
+            const adminResult = await googleSheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: `admin!A2:Z`,
+            });
+
+            const adminRows = adminResult.data.values || [];
+            for (const row of adminRows) {
+                const [name, userUsername, userPassword] = row;
+                if (userUsername === username && userPassword === password) {
+                    req.session.admin = { name, username };
+                    return res.json({ success: true, redirect: '/data' });
+                }
+            }
+        }
+
+        // 2. Check User project sheets
         for (const sheetName of sheetNames) {
-            if (sheetName.toLowerCase() === "other") continue;
+            if (["admin", "other"].includes(sheetName.toLowerCase())) continue;
 
             const result = await googleSheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
@@ -135,7 +142,7 @@ app.post('/login', async (req, res) => {
             return res.json({ success: true, redirect: '/user-dashboard' });
         }
 
-        // --- If nothing matched ---
+        // 3. If nothing matched
         return res.json({ success: false, message: "Invalid credentials. Please try again." });
 
     } catch (error) {
@@ -248,7 +255,7 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
 
 // --- Approve User (Move from "other" to project sheet) ---
 app.post('/approve-user', requireAdminLogin, async (req, res) => {
-    const { projectName, rowIndex } = req.body; 
+    const { projectName, rowIndex } = req.body;
 
     try {
         const auth = await getAuthClient();
@@ -256,8 +263,8 @@ app.post('/approve-user', requireAdminLogin, async (req, res) => {
 
         const sourceSheet = "other";
 
-        // 1. Get row data from source sheet
-        const rowRange = `${sourceSheet}!A${rowIndex}:Z${rowIndex}`; 
+        // 1. Get row data
+        const rowRange = `${sourceSheet}!A${rowIndex}:Z${rowIndex}`;
         const rowRes = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: rowRange,
@@ -269,36 +276,32 @@ app.post('/approve-user', requireAdminLogin, async (req, res) => {
 
         const rowData = rowRes.data.values[0];
 
-        // 2. Append row to target sheet
+        // 2. Append to project sheet
         await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
             range: `${projectName}!A1`,
             valueInputOption: "RAW",
-            requestBody: {
-                values: [rowData],
-            },
+            requestBody: { values: [rowData] },
         });
 
-        // 3. Delete row from source sheet
+        // 3. Delete from "other"
         await sheets.spreadsheets.batchUpdate({
             spreadsheetId: SPREADSHEET_ID,
             requestBody: {
-                requests: [
-                    {
-                        deleteDimension: {
-                            range: {
-                                sheetId: 0,  // ID of "other" sheet, adjust if needed
-                                dimension: "ROWS",
-                                startIndex: rowIndex - 1,
-                                endIndex: rowIndex,
-                            },
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: 0, // adjust sheetId if "other" is not 0
+                            dimension: "ROWS",
+                            startIndex: rowIndex - 1,
+                            endIndex: rowIndex,
                         },
                     },
-                ],
+                }],
             },
         });
 
-        res.json({ success: true, message: `Project moved to sheet: ${projectName}` });
+        res.json({ success: true, message: `User approved & moved to sheet: ${projectName}` });
 
     } catch (error) {
         console.error("Error approving user:", error);
