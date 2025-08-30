@@ -188,14 +188,14 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
 // --- Route to approve a project ---
 app.post('/approve-user', requireAdminLogin, async (req, res) => {
     const { projectName, rowIndex } = req.body; 
-    // rowIndex = index of the row in the "Pending" sheet
+    // rowIndex = index of the row in the "other" sheet
     // projectName = the project name to move data into the sheet with same name
 
     try {
         const auth = await getAuthClient();
         const sheets = google.sheets({ version: 'v4', auth });
 
-        const sourceSheet = "Pending"; // <-- CHANGE if your sheet of unapproved projects has a different name
+        const sourceSheet = "other"; // <-- CHANGE if your sheet of unapproved projects has a different name
 
         // 1. Get row data from source sheet
         const rowRange = `${sourceSheet}!A${rowIndex}:Z${rowIndex}`; 
@@ -228,7 +228,7 @@ app.post('/approve-user', requireAdminLogin, async (req, res) => {
                     {
                         deleteDimension: {
                             range: {
-                                sheetId: 0,  // ID of "Pending" sheet, use real ID if different
+                                sheetId: 0,  // ID of "other" sheet, use real ID if different
                                 dimension: "ROWS",
                                 startIndex: rowIndex - 1, // API is 0-based
                                 endIndex: rowIndex,
