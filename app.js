@@ -185,48 +185,68 @@ app.post('/delete-row', requireAdminLogin, async (req, res) => {
     }
 });
 
-// --- NEW: Route to approve a user ---
+// --- Route to approve a project ---
 app.post('/approve-user', requireAdminLogin, async (req, res) => {
-    const { rowIndex, rowData } = req.body;
-    const projectName = rowData[5]; // Project Name is the 6th column (index 5)
-
-    if (!projectName) {
-        return res.status(400).json({ success: false, message: 'Project name is missing.' });
-    }
+    const { projectName, rowIndex } = req.body; 
+    // rowIndex = index of the row in the "Pending" sheet
+    // projectName = the project name to move data into the sheet with same name
 
     try {
-        const authClient = await getAuthClient();
-        const googleSheets = await getSheetsInstance(authClient);
+        const auth = await getAuthClient();
+        const sheets = google.sheets({ version: 'v4', auth });
 
-        // 1. Append the data to the project-specific sheet
-        await googleSheets.spreadsheets.values.append({
+        const sourceSheet = "Pending"; // <-- CHANGE if your sheet of unapproved projects has a different name
+
+        // 1. Get row data from source sheet
+        const rowRange = `${sourceSheet}!A${rowIndex}:Z${rowIndex}`; 
+        const rowRes = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${projectName}!A:J`, // Use the project name as the sheet name
-            valueInputOption: 'USER_ENTERED',
-            resource: { values: [rowData] },
+            range: rowRange,
         });
 
-        // 2. Delete the original row from the "other" sheet
-        await googleSheets.spreadsheets.batchUpdate({
+        if (!rowRes.data.values || rowRes.data.values.length === 0) {
+            return res.status(400).json({ success: false, message: "Row not found" });
+        }
+
+        const rowData = rowRes.data.values[0];
+
+        // 2. Append row to target sheet (must exist, same name as projectName)
+        await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
-            resource: {
-                requests: [{
-                    deleteDimension: {
-                        range: {
-                            sheetId: 0, // Assumes "other" is the first sheet
-                            dimension: 'ROWS',
-                            startIndex: rowIndex - 1,
-                            endIndex: rowIndex
-                        }
-                    }
-                }]
-            }
+            range: `${projectName}!A1`,
+            valueInputOption: "RAW",
+            requestBody: {
+                values: [rowData],
+            },
         });
 
-        res.json({ success: true });
+        // 3. Delete row from source sheet
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId: SPREADSHEET_ID,
+            requestBody: {
+                requests: [
+                    {
+                        deleteDimension: {
+                            range: {
+                                sheetId: 0,  // ID of "Pending" sheet, use real ID if different
+                                dimension: "ROWS",
+                                startIndex: rowIndex - 1, // API is 0-based
+                                endIndex: rowIndex,
+                            },
+                        },
+                    },
+                ],
+            },
+        });
+
+        res.json({ success: true, message: `Project moved to sheet: ${projectName}` });
+
     } catch (error) {
-        console.error('Error approving user:', error);
-        res.status(500).json({ success: false, message: 'Failed to approve user. Ensure a sheet with the correct project name exists.' });
+        console.error("Error approving user:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to approve user. Ensure a sheet with the correct project name exists.",
+        });
     }
 });
 

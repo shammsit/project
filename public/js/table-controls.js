@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             target.classList.add('save-btn');
             row.classList.add('editing');
         }
+
         // --- Handle SAVE button click ---
         else if (target.classList.contains('save-btn')) {
             const cells = row.querySelectorAll('[data-label]');
@@ -43,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Error: Could not save changes.');
             }
         }
+
         // --- Handle DELETE button click ---
         else if (target.classList.contains('reject-btn')) {
             if (confirm('Are you sure you want to delete this row? This action cannot be undone.')) {
@@ -62,33 +64,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+
         // --- Handle APPROVE button click ---
         else if (target.classList.contains('approve-btn')) {
-            if (confirm('Are you sure you want to approve this user and move their data?')) {
-                const cells = row.querySelectorAll('[data-label]');
-                const rowData = Array.from(cells).map(cell => cell.textContent);
-                
-                try {
-                    const response = await fetch('/approve-user', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ rowIndex, rowData }),
-                    });
+            const projectName = row.querySelector('[data-label="Project Name"]').textContent.trim();
 
-                    const result = await response.json();
+            try {
+                const response = await fetch('/approve-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ projectName, rowIndex }),
+                });
 
-                    if (response.ok && result.success) {
-                        row.remove();
-                        alert('User approved and data moved successfully!');
-                    } else {
-                        throw new Error(result.message || 'Failed to approve user.');
-                    }
-                } catch (error) {
-                    console.error('Failed to approve user:', error);
-                    alert(`Error: ${error.message}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    row.remove(); // instantly remove from UI
+                } else {
+                    alert(result.message);
                 }
+            } catch (err) {
+                console.error("Approve error:", err);
+                alert("Something went wrong.");
             }
         }
+
         // --- Handle CONTACT button click ---
         else if (target.classList.contains('contact-btn')) {
             const mobile = row.querySelector('[data-label="Mobile Number"]').textContent;
