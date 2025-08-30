@@ -89,48 +89,46 @@ app.get('/signup', async (req, res) => {
     }
 });
 
-// --- UNIFIED LOGIN (Admin + User) ---
+// --- LOGIN (admin + user combined) ---
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
         const authClient = await getAuthClient();
         const googleSheets = await getSheetsInstance(authClient);
-        const sheetNames = await getSheetNames(authClient);
 
-        let foundUser = null;
+        // --- First check ADMIN sheet ---
+        const adminResult = await googleSheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `Admin!A2:Z`
+        });
 
-        // 1. Check Admin sheet
-        if (sheetNames.includes("admin")) {
-            const adminResult = await googleSheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: `admin!A2:Z`,
-            });
-
-            const adminRows = adminResult.data.values || [];
-            for (const row of adminRows) {
-                const [name, userUsername, userPassword] = row;
-                if (userUsername === username && userPassword === password) {
-                    req.session.admin = { name, username };
-                    return res.json({ success: true, redirect: '/data' });
-                }
+        const adminRows = adminResult.data.values || [];
+        for (const row of adminRows) {
+            const [name, adminUser, adminPass] = row;
+            if (adminUser === username && adminPass === password) {
+                req.session.user = { name, role: "admin" };
+                return res.json({ success: true, redirect: '/admin-dashboard' });
             }
         }
 
-        // 2. Check User project sheets
+        // --- Then check other project sheets (except "other" and "Admin") ---
+        const sheetNames = await getSheetNames(authClient);
+        let foundUser = null;
+
         for (const sheetName of sheetNames) {
-            if (["admin", "other"].includes(sheetName.toLowerCase())) continue;
+            if (sheetName.toLowerCase() === "admin" || sheetName.toLowerCase() === "other") continue;
 
             const result = await googleSheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
-                range: `${sheetName}!A2:Z`,
+                range: `${sheetName}!A2:Z`
             });
 
             const rows = result.data.values || [];
             for (const row of rows) {
-                const [name, userUsername, userPassword] = row;
-                if (userUsername === username && userPassword === password) {
-                    foundUser = { name, project: sheetName };
+                const [name, userUser, userPass] = row;
+                if (userUser === username && userPass === password) {
+                    foundUser = { name, project: sheetName, role: "user" };
                     break;
                 }
             }
@@ -142,13 +140,36 @@ app.post('/login', async (req, res) => {
             return res.json({ success: true, redirect: '/user-dashboard' });
         }
 
-        // 3. If nothing matched
-        return res.json({ success: false, message: "Invalid credentials. Please try again." });
+        return res.json({ success: false, message: "Invalid credentials" });
 
     } catch (error) {
         console.error("Login error:", error);
-        return res.json({ success: false, message: "Server error during login." });
+        return res.json({ success: false, message: "Server error during login" });
     }
+});
+
+// --- Middleware to protect routes ---
+function requireLogin(req, res, next) {
+    if (!req.session.user) return res.redirect('/');
+    next();
+}
+
+// --- Dashboards ---
+app.get('/admin-dashboard', requireLogin, (req, res) => {
+    if (req.session.user.role !== "admin") return res.redirect('/');
+    res.render('admin_dashboard', { user: req.session.user });
+});
+
+app.get('/user-dashboard', requireLogin, (req, res) => {
+    if (req.session.user.role !== "user") return res.redirect('/');
+    res.render('user_dashboard', { user: req.session.user });
+});
+
+// --- Logout ---
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
 });
 
 // --- Admin Data Table ---
