@@ -100,7 +100,7 @@ app.post('/login', async (req, res) => {
         // --- First check ADMIN sheet ---
         const adminResult = await googleSheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: `Admin!A2:Z`
+            range: `admin(dont select it)!A2:Z`
         });
 
         const adminRows = adminResult.data.values || [];
