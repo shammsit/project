@@ -58,3 +58,21 @@
 .logout-btn:hover {
     background: #c0392b;
 }
+.header-home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background-color: #4CAF50; /* green background */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.header-home-btn:hover {
+    background-color: #45a049; /* darker green */
+    transform: scale(1.05);    /* small zoom effect */
+}
