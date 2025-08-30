@@ -1,0 +1,60 @@
+.dashboard-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.welcome-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.welcome-subtitle {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.welcome-note {
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.control-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #2c3e50;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.control-btn:hover {
+    background: #1a242f;
+}
+
+.logout-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 24px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+}

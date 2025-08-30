@@ -342,3 +342,10 @@ app.get('/logout', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+// Admin control panel route
+app.get('/admin-control', requireLogin, (req, res) => {
+    if (req.session.user.role !== "admin") return res.redirect('/');
+    // Fetch sheet data for table
+    res.render('data/table', { sheetData: /* pass fetched data here */ });
+});
+

@@ -1,10 +1,22 @@
 <%- include('partials/header') %>
 
+<!-- Link to dashboard.css -->
+<link rel="stylesheet" href="/css/dashboard.css">
+
 <div class="dashboard-container">
-    <h2>Respected Admin,<br>Welcome to your Dashboard!</h2>
-    <p>You have successfully logged in.</p>
-    <p>You can control everything from here.</p>
-    <a href="/logout" class="logout-btn">Logout</a>
+    <h2 class="welcome-title">Respected Admin,<br>Welcome to your Dashboard!</h2>
+    <p class="welcome-subtitle">You have successfully logged in.</p>
+    <p class="welcome-note">You can control everything from here.</p>
+
+    <!-- Control Panel Button -->
+    <div class="control-section">
+        <a href="/admin-control" class="control-btn">Control Requested Users</a>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="logout-section">
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
 </div>
 
 <%- include('partials/footer') %>
