@@ -258,3 +258,56 @@ app.get('/logout', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+// --- USER LOGIN (non-admin, from project sheets except "other") ---
+app.post('/user-login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const authClient = await getAuthClient();
+        const googleSheets = await getSheetsInstance(authClient);
+
+        // Get all sheet names except "other"
+        const sheetNames = await getSheetNames(authClient);
+
+        let foundUser = null;
+
+        // Loop through each project sheet
+        for (const sheetName of sheetNames) {
+            const result = await googleSheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: `${sheetName}!A2:Z`, // assumes headers in row 1
+            });
+
+            const rows = result.data.values || [];
+
+            for (const row of rows) {
+                const [name, userUsername, userPassword] = row;
+
+                if (userUsername === username && userPassword === password) {
+                    foundUser = { name, project: sheetName };
+                    break;
+                }
+            }
+            if (foundUser) break;
+        }
+
+        if (foundUser) {
+            req.session.user = foundUser;
+            return res.json({ success: true, redirect: '/user-dashboard' });
+        } else {
+            return res.json({ success: false, message: "Invalid credentials. Please try again." });
+        }
+
+    } catch (error) {
+        console.error("User login error:", error);
+        return res.json({ success: false, message: "Server error during login." });
+    }
+});
+
+// --- USER DASHBOARD ROUTE ---
+app.get('/user-dashboard', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/');
+    }
+    res.render('user-dashboard', { user: req.session.user });
+});
