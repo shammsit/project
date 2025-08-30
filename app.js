@@ -149,14 +149,23 @@ app.post("/login", async (req, res) => {
 });
 
 // --- Dashboards ---
-app.get("/admin-dashboard", requireAdminLogin, (req, res) => {
-  // get all sheet names except "admin"
-const projectSheets = Object.keys(worksheetData).filter(name => name !== "admin");
+app.get("/admin-dashboard", requireAdminLogin, async (req, res) => {
+  try {
+    const authClient = await getAuthClient();
+    const sheetNames = await getSheetNames(authClient);
+    const filtered = sheetNames.filter(
+      (name) =>
+        name.toLowerCase() !== "admin" && name.toLowerCase() !== "other"
+    );
 
-res.render("admin_dashboard", { 
-  user: req.session.user,
-  projectSheets
-});
+    res.render("admin_dashboard", {
+      user: req.session.user,
+      projectSheets: filtered,
+    });
+  } catch (error) {
+    console.error("Error fetching project sheets:", error);
+    res.status(500).send("Failed to load admin dashboard.");
+  }
 });
 
 app.get("/user-dashboard", requireUserLogin, (req, res) => {
@@ -173,7 +182,7 @@ app.get("/admin-control", requireAdminLogin, async (req, res) => {
       range: "other!A2:J",
     });
     const sheetData = getRows.data.values || [];
-    res.render("data/table", { sheetData });
+    res.render("data/table", { sheetName: "other", data: sheetData });
   } catch (error) {
     console.error("Error reading from Google Sheets:", error);
     res.status(500).send("Error fetching data from the spreadsheet.");
@@ -365,6 +374,33 @@ app.post("/approve-user", requireAdminLogin, async (req, res) => {
   }
 });
 
+// --- Load Project Data Table ---
+app.get("/project/:sheetName", requireAdminLogin, async (req, res) => {
+  try {
+    const sheetName = req.params.sheetName;
+    const authClient = await getAuthClient();
+    const googleSheets = await getSheetsInstance(authClient);
+
+    const result = await googleSheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${sheetName}!A1:Z`,
+    });
+
+    const rows = result.data.values || [];
+    const headers = rows[0] || [];
+    const data = rows.slice(1).map((row) => {
+      const obj = {};
+      headers.forEach((h, i) => (obj[h] = row[i] || ""));
+      return obj;
+    });
+
+    res.render("data/table", { sheetName, data });
+  } catch (error) {
+    console.error("Error fetching project sheet data:", error);
+    res.status(500).send("Failed to load project data.");
+  }
+});
+
 // --- Logout ---
 app.get("/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/"));
@@ -373,14 +409,4 @@ app.get("/logout", (req, res) => {
 // --- Start Server ---
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-});
-app.get("/project/:sheetName", (req, res) => {
-    const sheetName = req.params.sheetName;
-    const data = worksheetData[sheetName];
-
-    if (!data) {
-        return res.status(404).send("Project sheet not found");
-    }
-
-    res.render("data/table", { sheetName, data });
 });
