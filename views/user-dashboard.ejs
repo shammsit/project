@@ -1,0 +1,12 @@
+<%- include('partials/dashboard-header', { title: 'User Dashboard' }) %>
+
+<main class="table-main">
+    <div class="table-container">
+        <h1>Welcome, <%= user.name %>!</h1>
+        <p>You are logged in under project: <strong><%= user.project %></strong></p>
+
+        <a href="/logout" class="btn">Logout</a>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
