@@ -348,4 +348,10 @@ app.get('/admin-control', requireLogin, (req, res) => {
     // Fetch sheet data for table
     res.render('data/table', { sheetData: [] });  // TODO: replace [] with real data later
 });
+app.get("/admin-dashboard", (req, res) => {
+    if (!req.session.user || req.session.user.role !== "admin") {
+        return res.redirect("/login");
+    }
+    res.render("admin_dashboard");  // admin_dashboard.ejs
+});
 

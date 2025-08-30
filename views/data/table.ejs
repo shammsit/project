@@ -1,6 +1,7 @@
-<%- include('../partials/dashboard-header', { title: 'Admin Dashboard' }) %>
+<%- include('partials/admin-dashboard-header.ejs') %>
 
 <main class="table-main">
+    <h1 color="green">Requested Users :</h1><br>
     <div class="table-container">
         <!-- Responsive Grid Header -->
         <div class="data-grid-header">
@@ -36,7 +37,7 @@
                     </div>
                 <% }); %>
             <% } else { %>
-                <p class="no-data-message">No data found in the spreadsheet.</p>
+                <p class="no-data-message">Norequest pending.</p>
             <% } %>
         </div>
     </div>
