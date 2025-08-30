@@ -12,6 +12,16 @@
     <div class="control-section">
         <a href="/admin-control" class="control-btn">Control Requested Users</a>
     </div>
+    <!-- Control Project Members Dropdown -->
+<div class="dropdown">
+    <button class="dropbtn">Control Project Members ⬇</button>
+    <div class="dropdown-content">
+        <% projectSheets.forEach(sheet => { %>
+            <a href="/project/<%= sheet %>"><%= sheet %></a>
+        <% }) %>
+    </div>
+</div>
+
     
     <!-- Logout Button -->
     <div class="logout-section">
